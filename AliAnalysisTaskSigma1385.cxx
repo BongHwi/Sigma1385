@@ -725,8 +725,8 @@ void AliAnalysisTaskSigma1385::FillNtuples() {
                 tmp[12] = v0AOD->MassLambda(); //V0Mass
             if(fPIDAntiLambda)
                 tmp[12] = v0AOD->MassAntiLambda(); //V0Mass
-            tmp[13] = v0ESD->Eta(); //EtaV0
-            tmp[14] = v0ESD->Phi(); //PhiV0
+            tmp[13] = v0AOD->Eta(); //EtaV0
+            tmp[14] = v0AOD->Phi(); //PhiV0
         }
 
         for (UInt_t j = 0; j < nTracks; j++) {

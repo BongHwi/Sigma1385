@@ -57,8 +57,8 @@ const Double_t pionMass = AliPID::ParticleMass(AliPID::kPion);
 const Double_t v0Mass = TDatabasePDG::Instance()->GetParticle(kLambda0)->Mass();
 
 enum {
-    kSigmaStarPCode      = 3324,// Sigma(1385)+
-    kSigmaStarNCode      = 3314,// Sigma(1385)-
+    kSigmaStarPCode      = 3224,// Sigma(1385)+
+    kSigmaStarNCode      = 3114,// Sigma(1385)-
     kLambdaCode          = 3122,// Lambda
     kProtonCode          = 2212,// Proton+
     kPionCode            = 211,// Pion+

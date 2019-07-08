@@ -170,6 +170,8 @@ void AliAnalysisTaskSigma1385::UserExec(Option_t *)
 {
     AliVEvent* event = InputEvent();
     if (!event) {
+        PostData(1, fHistos->GetListOfHistograms());
+        PostData(2,fNtupleSigma1385);
         AliInfo("Could not retrieve event");
         return;
     }
@@ -179,8 +181,11 @@ void AliAnalysisTaskSigma1385::UserExec(Option_t *)
     event->IsA() == AliESDEvent::Class()
         ? fEvt = dynamic_cast<AliESDEvent*>(event)
         : fEvt = dynamic_cast<AliAODEvent*>(event);
-    if (!fEvt)
+    if (!fEvt){
+        PostData(1, fHistos->GetListOfHistograms());
+        PostData(2,fNtupleSigma1385);
         return;
+    }
     AliInputEventHandler* inputHandler =
         (AliInputEventHandler*)AliAnalysisManager::GetAnalysisManager()
             ->GetInputEventHandler();
@@ -205,8 +210,11 @@ void AliAnalysisTaskSigma1385::UserExec(Option_t *)
         fCent = nanoHeader->GetCentr("V0M");
     }
 
-    if(!IsEvtSelected)
+    if(!IsEvtSelected){
+        PostData(1, fHistos->GetListOfHistograms());
+        PostData(2,fNtupleSigma1385);
         return;  // event cut
+    }
     
     fHistos->FillTH1("hMultiplicity", (double)fCent);
 

@@ -796,8 +796,8 @@ void AliAnalysisTaskSigma1385::FillNtuples() {
             else
                 tmp[15] = 0; //MCflag -> data
         } // pion loop
+        fNtupleSigma1385->Fill(tmp);
     }
-    fNtupleSigma1385->Fill(tmp);
 }
 void AliAnalysisTaskSigma1385::FillMCinput(AliMCEvent* fMCEvent) {
     auto sign = kAllType;

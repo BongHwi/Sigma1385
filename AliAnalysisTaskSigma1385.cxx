@@ -138,7 +138,6 @@ void AliAnalysisTaskSigma1385::UserCreateOutputObjects()
     fTrackCuts->SetEtaRange(-0.8, 0.8);
     fTrackCuts->SetPtRange(0.15, 1e20);
 
-
     fHistos = new THistManager("Xi1530hists");
     fEventCuts.AddQAplotsToList(fHistos->GetListOfHistograms());
     
@@ -571,9 +570,9 @@ void AliAnalysisTaskSigma1385::FillTracks() {
             if(fPIDLambda && pionN)
                 sign = kSigmaStarN;
             if(fPIDAntiLambda && pionP)
-                sign = kAntiSigmaStarP;
-            if(fPIDAntiLambda && pionN)
                 sign = kAntiSigmaStarN;
+            if(fPIDAntiLambda && pionN)
+                sign = kAntiSigmaStarP;
 
             FillTHnSparse("Sigma1385",
                           {(double)sign, (double)fCent, vecsum.Pt(), vecsum.M()});
@@ -585,9 +584,9 @@ void AliAnalysisTaskSigma1385::FillTracks() {
                 if(fPIDLambda && pionN)
                     sign = kSigmaStarN_REC;
                 if(fPIDAntiLambda && pionP)
-                    sign = kAntiSigmaStarP_REC;
-                if(fPIDAntiLambda && pionN)
                     sign = kAntiSigmaStarN_REC;
+                if(fPIDAntiLambda && pionN)
+                    sign = kAntiSigmaStarP_REC;
 
                     FillTHnSparse("Sigma1385",
                           {(double)sign, (double)fCent, vecsum.Pt(), vecsum.M()});
@@ -617,9 +616,9 @@ void AliAnalysisTaskSigma1385::FillTracks() {
                 if(fPIDLambda && pionN)
                     sign = kSigmaStarN_MIX;
                 if(fPIDAntiLambda && pionP)
-                    sign = kAntiSigmaStarP_MIX;
-                if(fPIDAntiLambda && pionN)
                     sign = kAntiSigmaStarN_MIX;
+                if(fPIDAntiLambda && pionN)
+                    sign = kAntiSigmaStarP_MIX;
 
                 FillTHnSparse("Sigma1385",
                           {(double)sign, (double)fCent, vecsum.Pt(), vecsum.M()});
@@ -636,6 +635,8 @@ void AliAnalysisTaskSigma1385::FillNtuples() {
     Bool_t fPIDLambda, fPIDAntiLambda;
     Int_t pID, nID;
     Double_t tmp[16];
+    for (UInt_t i = 0; i < 16; i++) 
+        tmp[i] = -999; // initial value
 
     TLorentzVector temp1, temp2;
     TLorentzVector vecsum;
@@ -765,9 +766,9 @@ void AliAnalysisTaskSigma1385::FillNtuples() {
             if(fPIDLambda && pionN)
                 sign = kSigmaStarN;
             if(fPIDAntiLambda && pionP)
-                sign = kAntiSigmaStarP;
-            if(fPIDAntiLambda && pionN)
                 sign = kAntiSigmaStarN;
+            if(fPIDAntiLambda && pionN)
+                sign = kAntiSigmaStarP;
             
             tmp[0] = GetTPCnSigma(track1, AliPID::kPion); //PIDSigmaStarPion
             tmp[1] = abs(track1->GetZ() - fZ); //DCASigmaStarPionToPrimVertexZ
@@ -821,11 +822,11 @@ void AliAnalysisTaskSigma1385::FillMCinput(AliMCEvent* fMCEvent) {
             if(v0PdgCode == kSigmaStarPCode)
                 sign = kSigmaStarP_GEN;
             if(v0PdgCode == -kSigmaStarPCode)
-                sign = kSigmaStarN_GEN;
+                sign = kAntiSigmaStarP_GEN;
             if(v0PdgCode == kSigmaStarNCode)
-                sign = kAntiSigmaStarP_REC;
+                sign = kSigmaStarN_GEN;
             if(v0PdgCode == -kSigmaStarNCode)
-                sign = kAntiSigmaStarN_REC;
+                sign = kAntiSigmaStarN_GEN;
 
                 FillTHnSparse("Sigma1385",
                       {(double)sign, (double)fCent, mcInputTrack->Pt(), mcInputTrack->GetCalcMass()});
@@ -855,11 +856,11 @@ void AliAnalysisTaskSigma1385::FillMCinput(AliMCEvent* fMCEvent) {
             if(v0PdgCode == kSigmaStarPCode)
                 sign = kSigmaStarP_GEN;
             if(v0PdgCode == -kSigmaStarPCode)
-                sign = kSigmaStarN_GEN;
+                sign = kAntiSigmaStarP_GEN;
             if(v0PdgCode == kSigmaStarNCode)
-                sign = kAntiSigmaStarP_REC;
+                sign = kSigmaStarN_GEN;
             if(v0PdgCode == -kSigmaStarNCode)
-                sign = kAntiSigmaStarN_REC;
+                sign = kAntiSigmaStarN_GEN;
 
                 FillTHnSparse("Sigma1385",
                       {(double)sign, (double)fCent, mcInputTrack->Pt(), mcInputTrack->GetCalcMass()});

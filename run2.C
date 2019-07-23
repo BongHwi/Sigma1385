@@ -61,7 +61,7 @@ const int LHC16k[] = {
 class AliAnalysisGrid;
 void run2(const char* taskname = "Sigma1385",
          const char* option =
-             "MB_MC_Study"
+             "AOD_MB_Study"
          , // Options: MC, HM, Vertex, AOD, Study
          const char* gridmode = "test"  // or "terminate" to merge
          ,
@@ -337,13 +337,22 @@ void run2(const char* taskname = "Sigma1385",
                         plugin->SetGridDataDir(
                             "/alice/sim/2018/LHC18c6b");  // resonance injected
                 }
-                plugin->SetDataPattern("*AliESDs.root");
+                if(!isaod)
+                    plugin->SetDataPattern("*AliESDs.root");
+                else
+                    plugin->SetDataPattern("*AliAOD.root");
             } else {
                 plugin->SetGridDataDir("/alice/data/2016/LHC16k");
                 if (foption.Contains("pass2"))
-                    plugin->SetDataPattern("pass2/*/AliESDs.root");
+                    if(!isaod)
+                        plugin->SetDataPattern("pass2/*/AliESDs.root");
+                    else //AOD
+                        plugin->SetDataPattern("pass2/AOD/*/AliAOD.root");
                 else
-                    plugin->SetDataPattern("pass1/*/AliESDs.root");
+                    if(!isaod)
+                        plugin->SetDataPattern("pass1/*/AliESDs.root");
+                    else //AOD
+                        plugin->SetDataPattern("pass1/AOD/*/AliAOD.root");
             }
             Int_t end = LHC16k.size();
             if (foption.Contains("test"))

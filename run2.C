@@ -104,6 +104,7 @@ void run2(const char* taskname = "Sigma1385",
     bool ismc = kFALSE;
     bool setmixing = kFALSE;
     bool vertexer = false;
+    bool isaod = kFALSE;
     int nmix = 20;
     bool highmult = kFALSE;
     TString foption = option;
@@ -112,12 +113,14 @@ void run2(const char* taskname = "Sigma1385",
         ismc = kTRUE;
     if (foption.Contains("Vertex"))
         vertexer = true;
+    if (foption.Contains("AOD"))
+        isaod = kTRUE;
 
     // analysis manager
     AliAnalysisManager* mgr =
         new AliAnalysisManager(Form("%s%s", taskname, option));
     AliInputEventHandler* handler;
-    if (foption.Contains("AOD"))
+    if (isaod)
         handler = new AliAODInputHandler();
     else
         handler = new AliESDInputHandler();
@@ -251,7 +254,7 @@ void run2(const char* taskname = "Sigma1385",
 #if !defined(__CINT__) || defined(__CLING__)
         // ROOT 6 MODE
         std::stringstream esdChain;
-        if (foption.Contains("AOD")) {
+        if (isaod) {
             esdChain << ".x " << gSystem->Getenv("ALICE_PHYSICS")
                      << "/PWG/EMCAL/macros/CreateAODChain.C(";
             if (!ismc)

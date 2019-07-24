@@ -2,7 +2,7 @@
 #include "AliAODInputHandler.h"
 #include "AliAnalysisAlien.h"
 #include "AliAnalysisManager.h"
-#include "AliAnalysisTaskSigma1385.h"
+#include "AliAnalysisTaskSigma1385temp.h"
 #include "AliESDInputHandler.h"
 #endif
 
@@ -61,7 +61,7 @@ const int LHC16k[] = {
 class AliAnalysisGrid;
 void run2(const char* taskname = "Sigma1385",
          const char* option =
-             "AOD_MB_Study"
+             "Study_Mix"
          , // Options: MC, HM, Vertex, AOD, Study
          const char* gridmode = "test"  // or "terminate" to merge
          ,
@@ -158,7 +158,7 @@ void run2(const char* taskname = "Sigma1385",
     // MultSlection->SetAlternateOADBforEstimators("LHC16k"); //if needed
     // PID response
     AliAnalysisTask* fPIDResponse =
-        reinterpret_cast<AliAnalysisTaskSigma1385*>(
+        reinterpret_cast<AliAnalysisTaskSigma1385temp*>(
             gInterpreter->ExecuteMacro(Form(
                 "$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C(%d)", ismc)));
     if (!fPIDResponse) {
@@ -202,12 +202,12 @@ void run2(const char* taskname = "Sigma1385",
         taskWDV-> SetPreselectDedxLambda(kFALSE);
         //taskWDV-> SetUseMonteCarloAssociation(kFALSE);
     }
-    gInterpreter->LoadMacro("AliAnalysisTaskSigma1385.cxx+g");
+    gInterpreter->LoadMacro("AliAnalysisTaskSigma1385temp.cxx+g");
     // AliAnalysisTaskXi1530temp *myTask =
     // reinterpret_cast<AliAnalysisTaskXi1530temp*>(gInterpreter->ExecuteMacro(Form("AddTaskXi1530.c(\"%s\",\"%s\",%i,%d,%d,%d,%d)",taskname,option,nmix,highmult,isaa,ismc,setmixing)));
 
-    AliAnalysisTaskSigma1385* myTask =
-        reinterpret_cast<AliAnalysisTaskSigma1385*>(gInterpreter->ExecuteMacro(Form("AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname, option,
+    AliAnalysisTaskSigma1385temp* myTask =
+        reinterpret_cast<AliAnalysisTaskSigma1385temp*>(gInterpreter->ExecuteMacro(Form("AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname, option,
                  nmix, suffix)));
 #else
     // ROOT 5 MODE
@@ -233,10 +233,10 @@ void run2(const char* taskname = "Sigma1385",
     AliAnalysisTask* fPIDResponse =
         AddTaskPIDResponse(ismc);  //! PID response object
 
-    gROOT->LoadMacro("AliAnalysisTaskSigma1385.cxx+g");
+    gROOT->LoadMacro("AliAnalysisTaskSigma1385temp.cxx+g");
 
     gROOT->LoadMacro("AddTaskSigma1385.C");
-    AliAnalysisTaskSigma1385* myTask =
+    AliAnalysisTaskSigma1385temp* myTask =
         AddTaskSigma1385(taskname, option, nmix, suffix);
 #endif
 
@@ -315,9 +315,9 @@ void run2(const char* taskname = "Sigma1385",
             "-I. -I$ROOTSYS/include -I$ALICE_ROOT -I$ALICE_ROOT/include "
             "-I$ALICE_PHYSICS/include");
         // plugin->Load("libpythia6_4_21.so");
-        plugin->SetAnalysisSource("AliAnalysisTaskSigma1385.cxx");
+        plugin->SetAnalysisSource("AliAnalysisTaskSigma1385temp.cxx");
         plugin->SetAdditionalLibs(
-            "AliAnalysisTaskSigma1385.cxx AliAnalysisTaskSigma1385.h "
+            "AliAnalysisTaskSigma1385temp.cxx AliAnalysisTaskSigma1385temp.h "
             "libpythia6_4_21.so");
         plugin->SetAliPhysicsVersion("vAN-20190701_ROOT6-1");
         plugin->SetAPIVersion("V1.1x");

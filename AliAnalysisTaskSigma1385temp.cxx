@@ -594,7 +594,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
             }
         } // pion loop
 
-        if (fsetmixing){
+        if ( (centbin >= 0) && (zbin >= 0) && fsetmixing) {
             auto sign = kAllType;
             for (UInt_t jt = 0; jt < trackpool.size(); jt++) {
                 track1 = trackpool.at(jt);
@@ -1062,6 +1062,8 @@ double AliAnalysisTaskSigma1385temp::GetTPCnSigma(AliVTrack* track,
 }
 void AliAnalysisTaskSigma1385temp::FillTrackToEventPool() {
     // Fill Selected tracks to event mixing pool
+    if ( (centbin < 0) || (zbin < 0))
+        return;
     AliVTrack* goodtrack;
 
     tracklist* etl;

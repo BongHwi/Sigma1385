@@ -457,6 +457,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
     Double_t fTPCNSigProton, fTPCNSigAntiProton,
             fTPCNSigPion, fTPCNSigAntiPion;
     Bool_t fPIDLambda, fPIDAntiLambda;
+    Bool_t SkipMixing = kFALSE;
     Int_t pID, nID;
 
     TLorentzVector temp1, temp2;
@@ -468,10 +469,12 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
     if (fsetmixing) {
         eventpool& ep = fEMpool[centbin][zbin];
         if ((int)ep.size() < (int)fnMix)
-            return;
-        for (auto pool : ep) {
-            for (auto track : pool)
-                trackpool.push_back((AliVTrack*)track);
+            SkipMixing = kTRUE;
+        if(!SkipMixing){
+            for (auto pool : ep) {
+                for (auto track : pool)
+                    trackpool.push_back((AliVTrack*)track);
+            }
         }
     }
     for (UInt_t i = 0; i < nV0; i++) {
@@ -594,7 +597,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
             }
         } // pion loop
 
-        if ( (centbin >= 0) && (zbin >= 0) && fsetmixing) {
+        if ( (centbin >= 0) && (zbin >= 0) && fsetmixing && !SkipMixing) {
             auto sign = kAllType;
             for (UInt_t jt = 0; jt < trackpool.size(); jt++) {
                 track1 = trackpool.at(jt);

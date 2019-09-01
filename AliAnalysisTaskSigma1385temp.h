@@ -112,7 +112,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE{
         AliMCEvent*             fMCEvent = nullptr;    //!
         THistManager*           fHistos = nullptr;   //!
         AliAODVertex*           vertex = nullptr;   //!
-        Bool_t                  fsetmixing = kTRUE;
+        Bool_t                  fsetmixing = kFALSE;
         Bool_t                  IsMC = kFALSE;
         Bool_t                  IsPrimaryMC = kFALSE;
         Bool_t                  fFillnTuple = kFALSE;

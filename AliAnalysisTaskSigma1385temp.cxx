@@ -241,11 +241,11 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t *)
         if(fFillnTuple)
             FillNtuples();
     }
-    PostData(1, fHistos->GetListOfHistograms());
     if (fsetmixing && goodtrackindices.size()){
         FillTrackToEventPool();  // use only pion track pool.
-        PostData(2, fNtupleSigma1385);
     }
+    PostData(1, fHistos->GetListOfHistograms());
+    PostData(2, fNtupleSigma1385);
 }
 //_____________________________________________________________________________
 void AliAnalysisTaskSigma1385temp::Terminate(Option_t *)

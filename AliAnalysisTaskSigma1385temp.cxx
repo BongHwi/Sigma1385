@@ -556,7 +556,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
                 continue;
 
             temp2.SetXYZM(track1->Px(), track1->Py(), track1->Pz(),
-                          track1->M());
+                          pionMass);
 
             vecsum = temp1 + temp2;  // temp1 = cascade, temp2=pion
             // Y cut
@@ -605,7 +605,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
                     track1->GetID() == nID)
                     continue;
                 temp2.SetXYZM(track1->Px(), track1->Py(), track1->Pz(),
-                              track1->M());
+                              pionMass);
                 vecsum = temp1 + temp2;
                 // Y cut
                 if ((vecsum.Rapidity() > fSigmaStarYCutHigh) ||
@@ -752,7 +752,7 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
                 continue;
 
             temp2.SetXYZM(track1->Px(), track1->Py(), track1->Pz(),
-                          track1->M());
+                          pionMass);
 
             vecsum = temp1 + temp2;  // temp1 = cascade, temp2=pion
             // Y cut

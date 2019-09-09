@@ -59,11 +59,15 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     void SetMaxRapidity0(Double_t lParameter) {
         fMaxLambdaRapidity = lParameter;
     }
-    void SetLowRadiusV0(Double_t lParameter) { fLambdaLowRadius = lParameter; }
+    void SetLowRadiusV0(Double_t lParameter) {
+        fLambdaLowRadius = lParameter;
+    }
     void SetHighRadiusV0(Double_t lParameter) {
         fLambdaHighRadius = lParameter;
     }
-    void SetLifetimeV0(Double_t lParameter) { fLambdaLifetime = lParameter; }
+    void SetLifetimeV0(Double_t lParameter) {
+        fLambdaLifetime = lParameter;
+    }
     void SetMaxMassWindowV0(Double_t lParameter) {
         fV0MassWindowCut = lParameter;
     }
@@ -160,7 +164,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     Double_t fSigmaStarYCutLow = -0.5;
 
     std::vector<UInt_t> goodtrackindices;  //!
-    std::vector<UInt_t> goodv0indices;     //!
+    std::vector<std::vector<UInt_t>> goodv0indices;  //!
 
     ClassDef(AliAnalysisTaskSigma1385temp, 2);
     // Add rapidity/radius/Lifetime/Y cut of lambda

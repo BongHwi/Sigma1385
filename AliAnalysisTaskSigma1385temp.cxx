@@ -664,9 +664,9 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
             nID = nTrackV0->GetID();
 
             if (goodv0indices[i][1] > 0)
-                isAnti = false;
-            else
                 isAnti = true;
+            else
+                isAnti = false;
 
             if (!isAnti)
                 v0ESD->ChangeMassHypothesis(kLambda0);
@@ -685,11 +685,11 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
                 (AliAODTrack*)(v0AOD->GetSecondaryVtx()->GetDaughter(1));
             pID = pTrackV0->GetID();
             nID = nTrackV0->GetID();
-            
+
             if (goodv0indices[i][1] > 0)
-                isAnti = false;
-            else
                 isAnti = true;
+            else
+                isAnti = false;
 
             if (!isAnti)
                 temp1.SetXYZM(v0AOD->MomV0X(), v0AOD->MomV0Y(), v0AOD->MomV0Z(),
@@ -764,10 +764,10 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
                     (vecsum.Rapidity() < fSigmaStarYCutLow))
                     continue;
 
-                if (track1->Charge() > 0)
-                    isPionPlus = true;
+                if (goodv0indices[i][1] > 0)
+                    isAnti = true;
                 else
-                    isPionPlus = false;
+                    isAnti = false;
 
                 if (!isAnti && isPionPlus)
                     sign = kSigmaStarP_MIX;
@@ -810,11 +810,11 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
                 ((AliESDEvent*)fEvt)->GetTrack(TMath::Abs(v0ESD->GetNindex()));
             pID = pTrackV0->GetID();
             nID = nTrackV0->GetID();
-            
+
             if (goodv0indices[i][1] > 0)
-                isAnti = false;
-            else
                 isAnti = true;
+            else
+                isAnti = false;
 
             if (!isAnti)
                 v0ESD->ChangeMassHypothesis(kLambda0);
@@ -848,9 +848,9 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
             nID = nTrackV0->GetID();
 
             if (goodv0indices[i][1] > 0)
-                isAnti = false;
-            else
                 isAnti = true;
+            else
+                isAnti = false;
 
             if (!isAnti)
                 temp1.SetXYZM(v0AOD->MomV0X(), v0AOD->MomV0Y(), v0AOD->MomV0Z(),
@@ -892,10 +892,10 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
 
             auto sign = kAllType;
 
-            if (track1->Charge() > 0)
-                isPionPlus = true;
+            if (goodv0indices[i][1] > 0)
+                isAnti = true;
             else
-                isPionPlus = false;
+                isAnti = false;
 
             if (!isAnti && isPionPlus)
                 sign = kSigmaStarP;

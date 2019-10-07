@@ -13,7 +13,7 @@
  * provided "as is" without express or implied warranty.                  *
  **************************************************************************/
 
-/* AliAnalysisTaskSigma1385temp
+/* AliAnalysisTaskSigma1385test
  *
  *  Test code for the reconstructing Sigma(1385)^{+-}
  *  Output could be saved to nTuple by using SetFillnTuple(kTRUE) 
@@ -46,7 +46,7 @@
 #include <AliNanoAODTrack.h>
 
 #include "AliAODv0.h"
-#include "AliAnalysisTaskSigma1385temp.h"
+#include "AliAnalysisTaskSigma1385test.h"
 #include "AliESDv0.h"
 #include "AliMCEvent.h"
 #include "AliMCEventHandler.h"
@@ -84,14 +84,14 @@ enum {
     kAllType
 };
 
-class AliAnalysisTaskSigma1385temp;
+class AliAnalysisTaskSigma1385test;
 
-ClassImp(AliAnalysisTaskSigma1385temp)
+ClassImp(AliAnalysisTaskSigma1385test)
 
-    AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp()
+    AliAnalysisTaskSigma1385test::AliAnalysisTaskSigma1385test()
     : AliAnalysisTaskSE(), fEvt(0), fNtupleSigma1385(0) {}
 //_____________________________________________________________________________
-AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp(const char* name,
+AliAnalysisTaskSigma1385test::AliAnalysisTaskSigma1385test(const char* name,
                                                            Bool_t MCcase)
     : AliAnalysisTaskSE(name), fEvt(0), IsMC(MCcase), fNtupleSigma1385(0) {
     DefineInput(0, TChain::Class());
@@ -99,9 +99,9 @@ AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp(const char* name,
     DefineOutput(2, TNtupleD::Class());
 }
 //_____________________________________________________________________________
-AliAnalysisTaskSigma1385temp::~AliAnalysisTaskSigma1385temp() {}
+AliAnalysisTaskSigma1385test::~AliAnalysisTaskSigma1385test() {}
 //___________________________________________________________________
-void AliAnalysisTaskSigma1385temp::SetCutOpen() {
+void AliAnalysisTaskSigma1385test::SetCutOpen() {
     // Pion cuts
     SetFilterbitSigmaStarPion(1);
     SetMaxNsigSigmaStarPion(5);
@@ -122,7 +122,7 @@ void AliAnalysisTaskSigma1385temp::SetCutOpen() {
     SetSigmaStarRapidityCutLow(-1);
 }
 //_____________________________________________________________________________
-void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
+void AliAnalysisTaskSigma1385test::UserCreateOutputObjects() {
     fTrackCuts = AliESDtrackCuts::GetStandardITSTPCTrackCuts2011();
 
     fHistos = new THistManager("Sigma1385hists");
@@ -199,7 +199,7 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
     PostData(2, fNtupleSigma1385);
 }
 //_____________________________________________________________________________
-void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
+void AliAnalysisTaskSigma1385test::UserExec(Option_t*) {
     AliVEvent* event = InputEvent();
     if (!event) {
         PostData(1, fHistos->GetListOfHistograms());
@@ -279,9 +279,9 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
     PostData(2, fNtupleSigma1385);
 }
 //_____________________________________________________________________________
-void AliAnalysisTaskSigma1385temp::Terminate(Option_t*) {}
+void AliAnalysisTaskSigma1385test::Terminate(Option_t*) {}
 //_____________________________________________________________________________
-Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
+Bool_t AliAnalysisTaskSigma1385test::GoodTracksSelection() {
     const UInt_t nTracks = fEvt->GetNumberOfTracks();
     goodtrackindices.clear();
     AliVTrack* track;
@@ -338,7 +338,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
     }
     return goodtrackindices.size();
 }
-Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
+Bool_t AliAnalysisTaskSigma1385test::GoodV0Selection() {
     goodv0indices.clear();
     const UInt_t nV0 = fEvt->GetNumberOfV0s();
 
@@ -634,7 +634,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
 
     return goodv0indices.size();
 }
-void AliAnalysisTaskSigma1385temp::FillTracks() {
+void AliAnalysisTaskSigma1385test::FillTracks() {
     AliVTrack* track1;
     AliESDv0* v0ESD;
     AliAODv0* v0AOD;
@@ -773,6 +773,11 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
                     (vecsum.Rapidity() < fSigmaStarYCutLow))
                     continue;
 
+                if (track1->Charge() > 0)
+                    isPionPlus = true;
+                else
+                    isPionPlus = false;
+
                 if (goodv0indices[i][1] > 0)
                     isAnti = true;
                 else
@@ -793,7 +798,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
         }
     }
 }
-void AliAnalysisTaskSigma1385temp::FillNtuples() {
+void AliAnalysisTaskSigma1385test::FillNtuples() {
     AliVTrack* track1 = nullptr;
     AliESDv0* v0ESD = nullptr;
     AliAODv0* v0AOD = nullptr;
@@ -899,6 +904,11 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
                 (vecsum.Rapidity() < fSigmaStarYCutLow))
                 continue;
 
+            if (track1->Charge() > 0)
+                isPionPlus = true;
+            else
+                isPionPlus = false;
+
             auto sign = kAllType;
 
             if (goodv0indices[i][1] > 0)
@@ -945,7 +955,7 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
         }                     // pion loop
     }
 }
-void AliAnalysisTaskSigma1385temp::FillMCinput(AliMCEvent* fMCEvent) {
+void AliAnalysisTaskSigma1385test::FillMCinput(AliMCEvent* fMCEvent) {
     auto sign = kAllType;
     if (fEvt->IsA() == AliESDEvent::Class()) {
         for (Int_t it = 0; it < fMCEvent->GetNumberOfPrimaries(); it++) {
@@ -1015,7 +1025,7 @@ void AliAnalysisTaskSigma1385temp::FillMCinput(AliMCEvent* fMCEvent) {
         }
     }
 }
-Bool_t AliAnalysisTaskSigma1385temp::IsTrueSigmaStar(UInt_t v0Index,
+Bool_t AliAnalysisTaskSigma1385test::IsTrueSigmaStar(UInt_t v0Index,
                                                      UInt_t pionIndex) {
     Bool_t trueSigmaStar = kFALSE;
     AliVTrack* track1;
@@ -1129,7 +1139,7 @@ Bool_t AliAnalysisTaskSigma1385temp::IsTrueSigmaStar(UInt_t v0Index,
     return trueSigmaStar;
 }
 
-THnSparse* AliAnalysisTaskSigma1385temp::CreateTHnSparse(
+THnSparse* AliAnalysisTaskSigma1385test::CreateTHnSparse(
     TString name,
     TString title,
     Int_t ndim,
@@ -1143,7 +1153,7 @@ THnSparse* AliAnalysisTaskSigma1385temp::CreateTHnSparse(
     THnSparse* h = fHistos->CreateTHnSparse(name, title, ndim, axises, opt);
     return h;
 }
-Long64_t AliAnalysisTaskSigma1385temp::FillTHnSparse(TString name,
+Long64_t AliAnalysisTaskSigma1385test::FillTHnSparse(TString name,
                                                      std::vector<Double_t> x,
                                                      Double_t w) {
     // From AliPhysics/PWGUD/DIFFRACTIVE/Resonance/AliAnalysisTaskf0f2.cxx
@@ -1156,7 +1166,7 @@ Long64_t AliAnalysisTaskSigma1385temp::FillTHnSparse(TString name,
     return FillTHnSparse(hsparse, x, w);
 }
 
-Long64_t AliAnalysisTaskSigma1385temp::FillTHnSparse(THnSparse* h,
+Long64_t AliAnalysisTaskSigma1385test::FillTHnSparse(THnSparse* h,
                                                      std::vector<Double_t> x,
                                                      Double_t w) {
     // From AliPhysics/PWGUD/DIFFRACTIVE/Resonance/AliAnalysisTaskf0f2.cxx
@@ -1168,7 +1178,7 @@ Long64_t AliAnalysisTaskSigma1385temp::FillTHnSparse(THnSparse* h,
     }
     return h->Fill(&x.front(), w);
 }
-TAxis AliAnalysisTaskSigma1385temp::AxisFix(TString name,
+TAxis AliAnalysisTaskSigma1385test::AxisFix(TString name,
                                             int nbin,
                                             Double_t xmin,
                                             Double_t xmax) {
@@ -1178,7 +1188,7 @@ TAxis AliAnalysisTaskSigma1385temp::AxisFix(TString name,
     axis.SetName(name);
     return axis;
 }
-TAxis AliAnalysisTaskSigma1385temp::AxisStr(TString name,
+TAxis AliAnalysisTaskSigma1385test::AxisStr(TString name,
                                             std::vector<TString> bin) {
     // From AliPhysics/PWGUD/DIFFRACTIVE/Resonance/AliAnalysisTaskf0f2.cxx
     // Original author: Beomkyu Kim
@@ -1189,7 +1199,7 @@ TAxis AliAnalysisTaskSigma1385temp::AxisStr(TString name,
     return ax;
 }
 
-TAxis AliAnalysisTaskSigma1385temp::AxisVar(TString name,
+TAxis AliAnalysisTaskSigma1385test::AxisVar(TString name,
                                             std::vector<Double_t> bin) {
     // From AliPhysics/PWGUD/DIFFRACTIVE/Resonance/AliAnalysisTaskf0f2.cxx
     // Original author: Beomkyu Kim
@@ -1197,7 +1207,7 @@ TAxis AliAnalysisTaskSigma1385temp::AxisVar(TString name,
     axis.SetName(name);
     return axis;
 }
-double AliAnalysisTaskSigma1385temp::GetTPCnSigma(AliVTrack* track,
+double AliAnalysisTaskSigma1385test::GetTPCnSigma(AliVTrack* track,
                                                   AliPID::EParticleType type) {
     AliNanoAODTrack* nanoT = dynamic_cast<AliNanoAODTrack*>(track);
     if (nanoT) {
@@ -1211,7 +1221,7 @@ double AliAnalysisTaskSigma1385temp::GetTPCnSigma(AliVTrack* track,
     } else
         return fPIDResponse->NumberOfSigmasTPC(track, type);
 }
-void AliAnalysisTaskSigma1385temp::FillTrackToEventPool() {
+void AliAnalysisTaskSigma1385test::FillTrackToEventPool() {
     // Fill Selected tracks to event mixing pool
     if ((centbin < 0) || (zbin < 0))
         return;
@@ -1239,7 +1249,7 @@ void AliAnalysisTaskSigma1385temp::FillTrackToEventPool() {
         ep->pop_front();
     }
 }
-void AliAnalysisTaskSigma1385temp::GetImpactParam(AliVTrack* track,
+void AliAnalysisTaskSigma1385test::GetImpactParam(AliVTrack* track,
                                                 Float_t p[2],
                                                 Float_t cov[3]) {
     AliNanoAODTrack* nanoT = dynamic_cast<AliNanoAODTrack*>(track);

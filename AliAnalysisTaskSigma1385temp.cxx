@@ -16,7 +16,7 @@
 /* AliAnalysisTaskSigma1385temp
  *
  *  Test code for the reconstructing Sigma(1385)^{+-}
- *  Output could be saved to nTuple by using SetFillnTuple(kTRUE) 
+ *  Output could be saved to nTuple by using SetFillnTuple(kTRUE)
  *    -> can be used for TMVA input
  *
  *  Author: Bong-Hwi Lim
@@ -159,9 +159,9 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
     fHistos->CreateTH1("QA/hDCA_lambdaDaughters", "", 300, 0, 3, "s");
     fHistos->CreateTH1("QA/hDCAlambdaPV", "", 500, 0, 5, "s");
     fHistos->CreateTH1("QA/hCosPAlambda", "", 150, 0.85, 1.0, "s");
-    fHistos->CreateTH1("QA/hTotMomQA", "", 100, 0, 10, "s");
+    if (fLifetimeCut) fHistos->CreateTH1("QA/hTotMomQA", "", 100, 0, 10, "s");
     fHistos->CreateTH1("QA/hYlambda", "", 400, -2, 2, "s");
-    fHistos->CreateTH1("QA/hDecayLengthQA", "", 100, 0, 100, "s");
+    if (fLifetimeCut) fHistos->CreateTH1("QA/hDecayLengthQA", "", 100, 0, 100, "s");
     fHistos->CreateTH1("QA/hMassLambda", "", 500, 1.0, 1.5, "s");
     fHistos->CreateTH1("QA/hLambdaRxy", "", 400, 0, 400);
 
@@ -178,9 +178,9 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
     fHistos->CreateTH1("QAcut/hDCA_lambdaDaughters", "", 300, 0, 3, "s");
     fHistos->CreateTH1("QAcut/hDCAlambdaPV", "", 500, 0, 5, "s");
     fHistos->CreateTH1("QAcut/hCosPAlambda", "", 150, 0.85, 1.0, "s");
-    fHistos->CreateTH1("QAcut/hTotMomQA", "", 100, 0, 10, "s");
+    if (fLifetimeCut) fHistos->CreateTH1("QAcut/hTotMomQA", "", 100, 0, 10, "s");
     fHistos->CreateTH1("QAcut/hYlambda", "", 400, -2, 2, "s");
-    fHistos->CreateTH1("QAcut/hDecayLengthQA", "", 100, 0, 100, "s");
+    if (fLifetimeCut) fHistos->CreateTH1("QAcut/hDecayLengthQA", "", 100, 0, 100, "s");
     fHistos->CreateTH1("QAcut/hMassLambda", "", 500, 1.0, 1.5, "s");
     fHistos->CreateTH1("QAcut/hLambdaRxy", "", 400, 0, 400);
 
@@ -302,7 +302,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
                 continue;
         }  // ESD Case
         else {
-            if (!IsNano && !((AliAODTrack*)track)->TestFilterBit(32))
+            if (!IsNano && !((AliAODTrack*)track)->TestFilterBit(fFilterBit))
                 continue;
         }  // AOD Case
 
@@ -382,8 +382,8 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
             Double_t fTPCNSigPion = GetTPCnSigma(nTrackV0, AliPID::kPion);
             Double_t fTPCNSigAntiPion = GetTPCnSigma(pTrackV0, AliPID::kPion);
 
-            if ((TMath::Abs(fTPCNSigProton) < fTPCNsigLambdaProtonCut) 
-                && (TMath::Abs(fTPCNSigPion) < fTPCNsigLambdaPionCut) 
+            if ((TMath::Abs(fTPCNSigProton) < fTPCNsigLambdaProtonCut)
+                && (TMath::Abs(fTPCNSigPion) < fTPCNsigLambdaPionCut)
                 && (nTrackV0->GetSign() < 0) ){
                 
                 fPIDLambda = kTRUE;
@@ -397,8 +397,8 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
                                  nTrackV0->GetTPCmomentum(),
                                  nTrackV0->GetTPCsignal());
             }
-            else if ((TMath::Abs(fTPCNSigAntiProton) < fTPCNsigLambdaProtonCut) 
-                    && (TMath::Abs(fTPCNSigAntiPion) < fTPCNsigLambdaPionCut) 
+            else if ((TMath::Abs(fTPCNSigAntiProton) < fTPCNsigLambdaProtonCut)
+                    && (TMath::Abs(fTPCNSigAntiPion) < fTPCNsigLambdaPionCut)
                     && (nTrackV0->GetSign() > 0)){
 
                 v0ESD->ChangeMassHypothesis(kLambda0Bar);
@@ -448,15 +448,17 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
                 AcceptedV0 = kFALSE;
 
             // Life time cut
-            lV0TotalMomentum = v0ESD->P();
-            fHistos->FillTH1("QA/hTotMomQA", lV0TotalMomentum);
-            fLength = TMath::Sqrt(TMath::Power(v0Position[0] - lPosPV[0], 2) +
-                                  TMath::Power(v0Position[1] - lPosPV[1], 2) +
-                                  TMath::Power(v0Position[2] - lPosPV[2], 2));
-            
-            lLifetime = TMath::Abs(v0Mass * fLength / lV0TotalMomentum);
-            if (lLifetime > fLambdaLifetime)
-                AcceptedV0 = kFALSE;
+            if (fLifetimeCut){
+                lV0TotalMomentum = v0ESD->P();
+                fHistos->FillTH1("QA/hTotMomQA", lV0TotalMomentum);
+                fLength = TMath::Sqrt(TMath::Power(v0Position[0] - lPosPV[0], 2) +
+                                    TMath::Power(v0Position[1] - lPosPV[1], 2) +
+                                    TMath::Power(v0Position[2] - lPosPV[2], 2));
+                fHistos->FillTH1("QA/hDecayLengthQA", fLength);
+                lLifetime = TMath::Abs(v0Mass * fLength / lV0TotalMomentum);
+                if (lLifetime > fLambdaLifetime)
+                    AcceptedV0 = kFALSE;
+            }
 
             // Mass window cut
             fMassV0 = v0ESD->GetEffMass();
@@ -488,9 +490,11 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
                 fHistos->FillTH1("QAcut/hCosPAlambda", fLambdaCPA);
                 fHistos->FillTH1("QAcut/hYlambda", v0ESD->RapLambda());
                 fHistos->FillTH1("QAcut/hLambdaRxy", radius);
-                fHistos->FillTH1("QAcut/hTotMomQA", lV0TotalMomentum);
                 fHistos->FillTH1("QAcut/hMassLambda", fMassV0);
-                fHistos->FillTH1("QAcut/hDecayLengthQA", fLength);
+                if (fLifetimeCut) {
+                    fHistos->FillTH1("QAcut/hTotMomQA", lV0TotalMomentum);
+                    fHistos->FillTH1("QAcut/hDecayLengthQA", fLength);
+                }
             }
         }                                     // All V0 loop
     }                                         // ESD case
@@ -522,8 +526,8 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
             Double_t fTPCNSigPion = GetTPCnSigma(nTrackV0, AliPID::kPion);
             Double_t fTPCNSigAntiPion = GetTPCnSigma(pTrackV0, AliPID::kPion);
 
-            if ((TMath::Abs(fTPCNSigProton) < fTPCNsigLambdaProtonCut) 
-                && (TMath::Abs(fTPCNSigPion) < fTPCNsigLambdaPionCut) 
+            if ((TMath::Abs(fTPCNSigProton) < fTPCNsigLambdaProtonCut)
+                && (TMath::Abs(fTPCNSigPion) < fTPCNsigLambdaPionCut)
                 && (nTrackV0->GetSign() < 0) ){
                 
                 fPIDLambda = kTRUE;
@@ -536,8 +540,8 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
                                  nTrackV0->GetTPCmomentum(),
                                  nTrackV0->GetTPCsignal());
             }
-            else if ((TMath::Abs(fTPCNSigAntiProton) < fTPCNsigLambdaProtonCut) 
-                    && (TMath::Abs(fTPCNSigAntiPion) < fTPCNsigLambdaPionCut) 
+            else if ((TMath::Abs(fTPCNSigAntiProton) < fTPCNsigLambdaProtonCut)
+                    && (TMath::Abs(fTPCNSigAntiPion) < fTPCNsigLambdaPionCut)
                     && (nTrackV0->GetSign() > 0)){
 
                 fPIDAntiLambda = kTRUE;
@@ -583,13 +587,15 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
                 AcceptedV0 = kFALSE;
 
             // Life time cut
-            lV0TotalMomentum = TMath::Sqrt(v0AOD->Ptot2V0());
-            fHistos->FillTH1("QA/hTotMomQA", lV0TotalMomentum);
-            fLength = v0AOD->DecayLength(lPosPV);
-            fHistos->FillTH1("QA/hDecayLengthQA", fLength);
-            lLifetime = TMath::Abs(v0Mass * fLength / lV0TotalMomentum);
-            if (lLifetime > fLambdaLifetime)
-                AcceptedV0 = kFALSE;
+            if (fLifetimeCut){
+                lV0TotalMomentum = TMath::Sqrt(v0AOD->Ptot2V0());
+                fHistos->FillTH1("QA/hTotMomQA", lV0TotalMomentum);
+                fLength = v0AOD->DecayLength(lPosPV);
+                fHistos->FillTH1("QA/hDecayLengthQA", fLength);
+                lLifetime = TMath::Abs(v0Mass * fLength / lV0TotalMomentum);
+                if (lLifetime > fLambdaLifetime)
+                    AcceptedV0 = kFALSE;
+            }
 
             // Mass window cut
             fMassV0 = -999;
@@ -625,9 +631,11 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
                 fHistos->FillTH1("QAcut/hCosPAlambda", fLambdaCPA);
                 fHistos->FillTH1("QAcut/hYlambda", v0AOD->RapLambda());
                 fHistos->FillTH1("QAcut/hLambdaRxy", radius);
-                fHistos->FillTH1("QAcut/hTotMomQA", lV0TotalMomentum);
                 fHistos->FillTH1("QAcut/hMassLambda", fMassV0);
-                fHistos->FillTH1("QAcut/hDecayLengthQA", fLength);
+                if (fLifetimeCut) {
+                    fHistos->FillTH1("QAcut/hTotMomQA", lV0TotalMomentum);
+                    fHistos->FillTH1("QAcut/hDecayLengthQA", fLength);
+                }
             }
         }  // All v0 loop
     }      // AOD case

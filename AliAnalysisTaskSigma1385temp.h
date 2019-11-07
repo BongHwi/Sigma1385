@@ -19,10 +19,11 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     virtual void UserCreateOutputObjects();
     virtual void UserExec(Option_t* option);
     virtual void Terminate(Option_t* option);
-    void SetMixing(Bool_t setmixing) { fsetmixing = setmixing; }
-    void SetnMix(Int_t nMix) { fnMix = nMix; }
-    void SetIsPrimaryMC(Bool_t isprimarymc) { IsPrimaryMC = isprimarymc; }
-    void SetFillnTuple(Bool_t fillntuple) { fFillnTuple = fillntuple; }
+    void SetMixing(Bool_t setmixing = kTRUE) { fsetmixing = setmixing; }
+    void SetnMix(Int_t nMix = 10) { fnMix = nMix; }
+    void SetnLifetimeCut(Bool_t input = kTRUE) { fLifetimeCut = input; }
+    void SetIsPrimaryMC(Bool_t isprimarymc = kTRUE) { IsPrimaryMC = isprimarymc; }
+    void SetFillnTuple(Bool_t fillntuple = kTRUE) { fFillnTuple = fillntuple; }
 
     // Setter for cut variables
     void SetFilterbitSigmaStarPion(Double_t lParameter) {
@@ -129,6 +130,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     Bool_t IsPrimaryMC = kFALSE;
     Bool_t fFillnTuple = kFALSE;
     Bool_t IsNano = kFALSE;
+    Bool_t fLifetimeCut = kFALSE;
     TNtupleD* fNtupleSigma1385;        //! Ntuple for the analysis
     TClonesArray* fMCArray = nullptr;  //!
     mixingpool fEMpool;                //!
@@ -142,7 +144,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     Int_t zbin = -1;
 
     // Pion cuts
-    UInt_t fFilterBit = 32.0;
+    UInt_t fFilterBit = 32;
     Double_t fTPCNsigSigmaStarPionCut = 3.0;
     Double_t fSigmaStarPionEtaCut = 0.8;
     Double_t fSigmaStarPionZVertexCut = 2.0;  // 2.0
@@ -167,10 +169,11 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     std::vector<UInt_t> goodtrackindices;  //!
     std::vector<std::vector<UInt_t>> goodv0indices;  //!
 
-    ClassDef(AliAnalysisTaskSigma1385temp, 4);
+    ClassDef(AliAnalysisTaskSigma1385temp, 5);
     // Add rapidity/radius/Lifetime/Y cut of lambda
     // Add NanoOption
     // 4: Add GetImpactParm function for nano
+    // 5: Remove Lifetimecut from default cut
 };
 
 #endif

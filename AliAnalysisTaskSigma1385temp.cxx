@@ -97,6 +97,18 @@ enum {
     kAntiSigmaStarP_REC,
     kAntiSigmaStarN_REC,
 };
+enum {
+    kAll = 1,  // 1
+    kINEL10,
+    kINEL10_vtx,
+    kINEL10_vtx_trig,
+    kINELg0,
+    kINELg010,
+    kINELg010_vtx, 
+    kINELg010_vtx_trig,
+    kTrig, 
+    kSelected
+};
 
 class AliAnalysisTaskSigma1385temp;
 
@@ -152,10 +164,12 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
                  "SigmaStarP_gen_trig", "SigmaStarN_gen_trig","AntiSigmaStarP_gen_trig",
                  "AntiSigmaStarN_gen_trig", "SigmaStarP_rec", "SigmaStarN_rec", "AntiSigmaStarP_rec",
                  "AntiSigmaStarN_rec"});
-
-    std::vector<double> centaxisbin = {
+    
+    std::vector<double> centaxisbin = (fIsHM) ? {
+        0,  0.001,  0.01,  0.05, 0.1} : {
         0,  1,  5,  10, 15, 20, 30,
-        40, 50, 60, 70, 80, 90, 100};  // can be use from pp to PbPb
+        40, 50, 60, 70, 80, 90, 100}
+        ;  // can be use from pp to PbPb
     binCent = AxisVar("Cent", centaxisbin);
     auto binPt = AxisFix("Pt", 200, 0, 20);
     auto binMass = AxisFix("Mass", 2000, 1.0, 3.0);
@@ -163,11 +177,21 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
 
     CreateTHnSparse("Sigma1385_data", "Sigma1385_data", 4,
                     {binType, binCent, binPt, binMass}, "s");
-    if(fIsMC)
+    if (fIsMC) {
+        auto binTypeMCNorm = AxisStr(
+        "Type", {"kAll", "kINEL10", "kINEL10_vtx", "kINEL10_vtx_trig", "kINELg0",
+                 "kINELg010", "kINELg010_vtx","kINELg010_vtx_trig", "kTrig"
+                 "kSelected"});
         CreateTHnSparse("Sigma1385_mc", "Sigma1385_mc", 4,
                         {binTypeMC, binCent, binPt, binMass}, "s");
+        CreateTHnSparse("Normalisation", "", 2, {binTypeMCNorm, binCent},
+                        "s");
+    }
     fEventCuts.AddQAplotsToList(fHistos->GetListOfHistograms());
-    fHistos->CreateTH1("hMultiplicity", "", 100, 0, 100, "s");
+    if(fIsHM) 
+        fHistos->CreateTH1("hMultiplicity", "", 100, 0, 0.1, "s");
+    else
+        fHistos->CreateTH1("hMultiplicity", "", 100, 0, 100, "s");
 
     fHistos->CreateTH2("QA/hTPCPIDPion", "", 200, 0, 20, 2000, 0, 200);
     fHistos->CreateTH1("QA/hEtaPion", "", 40, -2, 2);
@@ -247,7 +271,7 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
         (AliInputEventHandler*)AliAnalysisManager::GetAnalysisManager()
             ->GetInputEventHandler();
 
-    bool IsEvtSelected{false}, IsINEL0True{false}, IsSelectedTrig{false}, IsVtxInZCut{false};
+    bool IsEvtSelected{false}, IsINEL0True{false}, IsSelectedTrig{false}, IsVtxInZCut{false}, IsGoodVertex{false};
     if (!nanoHeader) {
         IsEvtSelected = fEventCuts.AcceptEvent(event);
         if (fIsMC) {
@@ -264,6 +288,7 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
         IsVtxInZCut =
             fEventCuts.PassedCut(AliEventCuts::kVertexPosition);
         IsSelectedTrig = fEventCuts.PassedCut(AliEventCuts::kTrigger);
+        IsGoodVertex = fEventCuts.PassedCut(AliEventCuts::kVertexQuality);
     } else {
         if(!fIsNano)
             fIsNano = kTRUE;
@@ -278,6 +303,37 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
             FillMCinput(fMCEvent, 2);
         if(IsSelectedTrig)
             FillMCinput(fMCEvent ,3);
+        FillTHnSparse("Normalisation",
+                            {(int)kAll, (double)fCent});
+        if (IsINEL0True) {
+            FillTHnSparse("Normalisation",
+                            {(int)kINELg0, (double)fCent});
+            if(IsVtxInZCut){
+                FillTHnSparse("Normalisation",
+                            {(int)kINELg010, (double)fCent});
+                if(IsGoodVertex){
+                    FillTHnSparse("Normalisation",
+                            {(int)kINELg010_vtx, (double)fCent});
+                    if(IsSelectedTrig) {
+                        FillTHnSparse("Normalisation",
+                                {(int)kINELg010_vtx_trig, (double)fCent});
+                    }
+                }
+            }
+        }
+        if(IsVtxInZCut){
+            FillTHnSparse("Normalisation",
+                        {(int)kINEL10, (double)fCent});
+            if(IsGoodVertex){
+                FillTHnSparse("Normalisation",
+                        {(int)kINEL10_vtx, (double)fCent});
+                if(IsSelectedTrig) {
+                    FillTHnSparse("Normalisation",
+                            {(int)kINEL10_vtx_trig, (double)fCent});
+                }
+            }
+        }
+
     }
 
     if (!IsEvtSelected) {
@@ -288,8 +344,11 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
 
     fHistos->FillTH1("hMultiplicity", (double)fCent);
 
-    if (fIsMC)
+    if (fIsMC){
         FillMCinput(fMCEvent);
+        FillTHnSparse("Normalisation",
+                            {(int)kSelected, (double)fCent});
+    }
     if (fEvt->IsA() == AliAODEvent::Class())
         vertex = ((AliAODEvent*)fEvt)->GetPrimaryVertex();
     const AliVVertex* pVtx = fEvt->GetPrimaryVertex();

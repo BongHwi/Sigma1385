@@ -23,6 +23,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     void SetnMix(Int_t nMix) { fnMix = nMix; }
     void SetIsPrimaryMC(Bool_t isprimarymc) { IsPrimaryMC = isprimarymc; }
     void SetINEL(Bool_t input) { fIsINEL = input; }
+    void SetHighMult(Bool_t input) { fIsHM = input; }
     void SetFillnTuple(Bool_t fillntuple) { fFillnTuple = fillntuple; }
 
     // Setter for cut variables
@@ -131,6 +132,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     Bool_t fFillnTuple = kFALSE;
     Bool_t fIsNano = kFALSE;
     Bool_t fIsINEL = kFALSE;
+    Bool_t fIsHM = kFALSE;
     TNtupleD* fNtupleSigma1385;        //! Ntuple for the analysis
     TClonesArray* fMCArray = nullptr;  //!
     mixingpool fEMpool;                //!
@@ -173,7 +175,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     // Add rapidity/radius/Lifetime/Y cut of lambda
     // Add NanoOption
     // 4: Add GetImpactParm function for nano
-    // 5: Seprate MC Sparse, INEL stduy capability
+    // 5: Seprate MC Sparse, INEL study capability
 };
 
 #endif

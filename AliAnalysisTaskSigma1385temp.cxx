@@ -165,7 +165,7 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
 
     fHistos = new THistManager("Sigma1385hists");
     auto binAnti = AxisStr(
-        "Type", {"Normal", "Anti"});
+        "AType", {"Normal", "Anti"});
     auto binType = AxisStr(
         "Type", {"SigmaStarP", "SigmaStarN", "SigmaStarP_mix", "SigmaStarN_mix"});
     auto binTypeMC = AxisStr(

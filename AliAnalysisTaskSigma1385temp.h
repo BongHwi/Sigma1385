@@ -133,6 +133,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     AliMCEvent* fMCEvent = nullptr;   //!
     THistManager* fHistos = nullptr;  //!
     AliAODVertex* vertex = nullptr;   //!
+    Bool_t IsAOD = kFALSE;
     Bool_t fsetmixing = kFALSE;
     Bool_t fFillQAPlot = kTRUE;
     Bool_t fIsMC = kFALSE;
@@ -181,13 +182,14 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
     std::vector<UInt_t> goodtrackindices;  //!
     std::vector<std::vector<UInt_t>> goodv0indices;  //!
 
-    ClassDef(AliAnalysisTaskSigma1385temp, 7);
+    ClassDef(AliAnalysisTaskSigma1385temp, 8);
     // Add rapidity/radius/Lifetime/Y cut of lambda
     // Add NanoOption
     // 4: Add GetImpactParm function for nano
     // 5: Seprate MC Sparse, INEL study capability
     // 6: Update some of deafult vaules
     // 7: Add skipping option for QA histos
+    // 8: Rebuild MC part
 };
 
 #endif

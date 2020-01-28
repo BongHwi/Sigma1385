@@ -79,6 +79,8 @@ enum {
     kSigmaStarN,
     kSigmaStarP_MIX,
     kSigmaStarN_MIX,
+    kSigmaStarP_NOT,
+    kSigmaStarN_NOT,
     kAllType
 };
 enum {
@@ -104,16 +106,17 @@ enum {
     kSigmaStarNBkg_type5
 };
 enum {
-    kAll = 1,  // 1
+    kAll = 1,   // 1
     kINEL10,
-    kINEL10_vtx,
-    kINEL10_vtx_trig,
-    kINELg0,
+    kINEL_trig,
+    kINEL_trig_vtx,
+    kINEL_trig_vtx10,
+    kINELg0,    // 6
     kINELg010,
-    kINELg010_vtx, 
-    kINELg010_vtx_trig,
-    kTrig, 
-    kSelected
+    kINELg0_trig, 
+    kINELg0_trig_vtx, 
+    kINELg0_trig_vtx10,
+    kSelected   // 11
 };
 
 class AliAnalysisTaskSigma1385temp;
@@ -166,8 +169,9 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
     fHistos = new THistManager("Sigma1385hists");
     auto binAnti = AxisStr(
         "AType", {"Normal", "Anti"});
-    auto binType = AxisStr(
-        "Type", {"SigmaStarP", "SigmaStarN", "SigmaStarP_mix", "SigmaStarN_mix"});
+    auto binType =
+        (!fIsMC) ? AxisStr("Type", {"SigmaStarP", "SigmaStarN", "SigmaStarP_mix", "SigmaStarN_mix"})
+                 : AxisStr("Type", {"SigmaStarP", "SigmaStarN", "SigmaStarP_mix", "SigmaStarN_mix", "SigmaStarP_no", "SigmaStarN_no"});
     auto binTypeMC = AxisStr(
         "Type", {"SigmaStarP_gen", "SigmaStarN_gen","SigmaStarP_gen_inel10", "SigmaStarN_gen_inel10",
                  "SigmaStarP_gen_inel10_igz","SigmaStarN_gen_inel10_igz","SigmaStarP_gen_trig", "SigmaStarN_gen_trig",
@@ -185,15 +189,15 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
     auto binPt = AxisFix("Pt", 200, 0, 20);
     auto binMass = AxisFix("Mass", 1800, 1.2, 3.0);
     auto binMassMC = AxisFix("Mass", 800, 1.2, 2.0);
-    binZ = AxisVar("Z", {-10, -5, -3, -1, 1, 3, 5, 10});
+    binZ = AxisFix("Z",20,-10,10);
 
     CreateTHnSparse("Sigma1385_data", "Sigma1385_data", 5,
                     {binAnti, binType, binCent, binPt, binMass}, "s");
     if (fIsMC) {
         auto binTypeMCNorm = AxisStr(
-        "Type", {"kAll", "kINEL10", "kINEL10_vtx", "kINEL10_vtx_trig", "kINELg0",
-                 "kINELg010", "kINELg010_vtx","kINELg010_vtx_trig", "kTrig"
-                 "kSelected"});
+        "Type", {"kAll", "kINEL10", "kINEL_trig", "kINEL_trig_vtx",
+                 "kINEL_trig_vtx10", "kINELg0", "kINELg010", "kINELg0_trig", 
+                 "kINELg0_trig_vtx", "kINELg0_trig_vtx10", "kSelected"});
         CreateTHnSparse("Sigma1385_mc", "Sigma1385_mc", 5,
                         {binAnti, binTypeMC, binCent, binPt, binMassMC}, "s");
         CreateTHnSparse("Normalisation", "", 2, {binTypeMCNorm, binCent},
@@ -276,6 +280,8 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
     event->IsA() == AliESDEvent::Class()
         ? fEvt = dynamic_cast<AliESDEvent*>(event)
         : fEvt = dynamic_cast<AliAODEvent*>(event);
+    if (!IsAOD && (event->IsA() != AliESDEvent::Class()))
+        IsAOD = true;
     if (!fEvt) {
         PostData(1, fHistos->GetListOfHistograms());
         PostData(2, fNtupleSigma1385);
@@ -289,7 +295,7 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
     if (!nanoHeader) {
         IsEvtSelected = fEventCuts.AcceptEvent(event);
         if (fIsMC) {
-            if (fEvt->IsA() != AliESDEvent::Class())
+            if (IsAOD)
                 fMCArray = (TClonesArray*)fEvt->FindListObject(
                     "mcparticles");  // AOD Case
             fMCEvent = MCEvent();
@@ -318,36 +324,43 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
         if(IsSelectedTrig)
             FillMCinput(fMCEvent ,3);
         FillTHnSparse("Normalisation",
-                            {(int)kAll, (double)fCent});
+                      {(int)kAll, (double)fCent});
         if (IsINEL0True) {
             FillTHnSparse("Normalisation",
-                            {(int)kINELg0, (double)fCent});
+                          {(int)kINELg0, (double)fCent});
             if(IsVtxInZCut){
                 FillTHnSparse("Normalisation",
-                            {(int)kINELg010, (double)fCent});
+                             {(int)kINELg010, (double)fCent});
+            }
+            if(IsSelectedTrig) {
+                FillTHnSparse("Normalisation",
+                              {(int)kINELg0_trig, (double)fCent});
                 if(IsGoodVertex){
                     FillTHnSparse("Normalisation",
-                            {(int)kINELg010_vtx, (double)fCent});
-                    if(IsSelectedTrig) {
+                                  {(int)kINELg0_trig_vtx, (double)fCent});
+                    if(IsVtxInZCut){
                         FillTHnSparse("Normalisation",
-                                {(int)kINELg010_vtx_trig, (double)fCent});
+                                      {(int)kINELg0_trig_vtx10, (double)fCent});
                     }
                 }
             }
         }
         if(IsVtxInZCut){
             FillTHnSparse("Normalisation",
-                        {(int)kINEL10, (double)fCent});
+                          {(int)kINEL10, (double)fCent});
+        }
+        if(IsSelectedTrig) {
+            FillTHnSparse("Normalisation",
+                          {(int)kINEL_trig, (double)fCent});
             if(IsGoodVertex){
                 FillTHnSparse("Normalisation",
-                        {(int)kINEL10_vtx, (double)fCent});
-                if(IsSelectedTrig) {
+                              {(int)kINEL_trig_vtx, (double)fCent});
+                if(IsVtxInZCut){
                     FillTHnSparse("Normalisation",
-                            {(int)kINEL10_vtx_trig, (double)fCent});
+                                  {(int)kINEL_trig_vtx10, (double)fCent});
                 }
             }
         }
-
     }
 
     if (!IsEvtSelected) {
@@ -409,7 +422,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
         GetImpactParam(track, b, bCov);
 
         // ---------- Track selection begin ----------
-        if (fEvt->IsA() == AliESDEvent::Class()) {
+        if (!IsAOD) {
             if (!fTrackCuts->AcceptTrack((AliESDtrack*)track))
                 continue;
         }  // ESD Case
@@ -473,7 +486,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
     UInt_t isAnti = 0;
 
     Bool_t AcceptedV0 = kTRUE;
-    if (fEvt->IsA() == AliESDEvent::Class()) {  // ESD case
+    if (!IsAOD) {  // ESD case
         for (UInt_t it = 0; it < nV0; it++) {
             lPIDLambda = kFALSE;
             lPIDAntiLambda = kFALSE;
@@ -804,6 +817,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
 }
 void AliAnalysisTaskSigma1385temp::FillTracks() {
     AliVTrack* track1;
+    AliVTrack* track_mix;
     AliESDv0* v0ESD;
     AliAODv0* v0AOD;
     Bool_t isAnti, isPionPlus;
@@ -830,7 +844,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
         }
     }
     for (UInt_t i = 0; i < nV0; i++) {
-        if (fEvt->IsA() == AliESDEvent::Class()) {
+        if (!IsAOD) {
             v0ESD = ((AliESDEvent*)fEvt)->GetV0(goodv0indices[i][0]);
             if (!v0ESD)
                 continue;
@@ -912,7 +926,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
                 }
                 else{
                     // MC not true bkg
-                    (isPionPlus) ? sign = kSigmaStarP_MIX : sign = kSigmaStarN_MIX;
+                    (isPionPlus) ? sign = kSigmaStarP_NOT : sign = kSigmaStarN_NOT;
                     FillTHnSparse("Sigma1385_data", {(double)binAnti, (double)sign, (double)fCent,
                                             vecsum.Pt(), vecsum.M()});
                 }
@@ -944,12 +958,12 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
             }
         }  // pion loop
 
-        if ((centbin >= 0) && (zbin >= 0) && fsetmixing && !SkipMixing) {
+        if (fsetmixing &&  !SkipMixing && (centbin >= 0) && (zbin >= 0)) {
             for (UInt_t jt = 0; jt < trackpool.size(); jt++) {
-                track1 = trackpool.at(jt);
-                if (track1->GetID() == pID || track1->GetID() == nID)
+                track_mix = trackpool.at(jt);
+                if (track_mix->GetID() == pID || track_mix->GetID() == nID)
                     continue;
-                temp2.SetXYZM(track1->Px(), track1->Py(), track1->Pz(),
+                temp2.SetXYZM(track_mix->Px(), track_mix->Py(), track_mix->Pz(),
                               pionMass);
                 vecsum = temp1 + temp2;
                 // Y cut
@@ -957,7 +971,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
                     (vecsum.Rapidity() < fSigmaStarYCutLow))
                     continue;
 
-                if (track1->Charge() > 0)
+                if (track_mix->Charge() > 0)
                     isPionPlus = true;
                 else
                     isPionPlus = false;
@@ -995,7 +1009,7 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
     const UInt_t nV0 = goodv0indices.size();
     const UInt_t nTracks = goodtrackindices.size();
     for (UInt_t i = 0; i < nV0; i++) {
-        if (fEvt->IsA() == AliESDEvent::Class()) {
+        if (!IsAOD) {
             v0ESD = ((AliESDEvent*)fEvt)->GetV0(goodv0indices[i][0]);
             if (!v0ESD)
                 continue;
@@ -1144,7 +1158,7 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
 void AliAnalysisTaskSigma1385temp::FillMCinput(AliMCEvent* fMCEvent, int Fillbin) {
     int sign = kAllType;
     int binAnti = 0;
-    if (fEvt->IsA() == AliESDEvent::Class()) {
+    if (!IsAOD) {
         for (Int_t it = 0; it < fMCEvent->GetNumberOfPrimaries(); it++) {
             TParticle* mcInputTrack =
                 (TParticle*)fMCEvent->GetTrack(it)->Particle();
@@ -1214,7 +1228,7 @@ Bool_t AliAnalysisTaskSigma1385temp::IsTrueSigmaStar(UInt_t v0Index,
 
     track1 = (AliVTrack*)fEvt->GetTrack(pionIndex);
 
-    if (fEvt->IsA() == AliESDEvent::Class()) {
+    if (!IsAOD) {
         v0ESD = ((AliESDEvent*)fEvt)->GetV0(v0Index);
         if (!v0ESD)
             return kFALSE;

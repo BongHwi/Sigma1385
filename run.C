@@ -33,12 +33,12 @@ vector<Int_t> LHC16k = {
 class AliAnalysisGrid;
 void run(const char* taskname = "Sigma1385",
          const char* option =
-             "LHC16k_MB_Mix_AOD"  // when scanning AOD, add "AOD"
+             "LHC16k_MB_Mix_AOD_range"  // when scanning AOD, add "AOD"
          ,
          const char* gridmode = "local"  // or "terminate" to merge
          ,
          UInt_t istart = 0,
-         UInt_t iend = 25,
+         UInt_t iend = 1,
          const char* localorgrid = "local") {
     gSystem->Load("libTree.so");
     gSystem->Load("libGeom.so");
@@ -71,8 +71,6 @@ void run(const char* taskname = "Sigma1385",
     const char* suffix = "MB";
     if (foption.Contains("MC"))
         ismc = kTRUE;
-    if (foption.Contains("Vertex"))
-        vertexer = true;
     if (foption.Contains("AOD"))
         isaod = true;
 
@@ -96,7 +94,7 @@ void run(const char* taskname = "Sigma1385",
     // Physics Selection
     AliPhysicsSelectionTask* physSelTask =
         reinterpret_cast<AliPhysicsSelectionTask*>(gInterpreter->ExecuteMacro(
-            Form("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C(%d)",
+            Form("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C(%d,kTRUE)",
                  ismc)));
     if (!physSelTask) {
         Printf("no physSelTask");

@@ -35,11 +35,11 @@ void run(const char* taskname = "Sigma1385",
          const char* option =
              "LHC16k_MB_Mix_AOD_range"  // when scanning AOD, add "AOD"
          ,
-         const char* gridmode = "local"  // or "terminate" to merge
+         const char* gridmode = "full"  // or "terminate" to merge
          ,
          UInt_t istart = 0,
-         UInt_t iend = 1,
-         const char* localorgrid = "local") {
+         UInt_t iend = 50,
+         const char* localorgrid = "grid") {
     gSystem->Load("libTree.so");
     gSystem->Load("libGeom.so");
     gSystem->Load("libVMC.so");
@@ -189,7 +189,7 @@ void run(const char* taskname = "Sigma1385",
         plugin->SetAdditionalLibs(
             "AliAnalysisTaskSigma1385temp.cxx AliAnalysisTaskSigma1385temp.h "
             "libpythia6_4_21.so");
-        plugin->SetAliPhysicsVersion("vAN-202000127_ROOT6-1");
+        plugin->SetAliPhysicsVersion("vAN-20200127_ROOT6-1");
         plugin->SetAPIVersion("V1.1x");
         if (!ismc)
             plugin->SetRunPrefix("000");
@@ -244,7 +244,7 @@ void run(const char* taskname = "Sigma1385",
         plugin->SetGridWorkingDir(Form("%s%s", taskname, option));
         plugin->SetGridOutputDir("out");
 
-        // plugin->SetOutputToRunNo(kTRUE);
+        plugin->SetOutputToRunNo(kTRUE);
         plugin->SetOverwriteMode(kTRUE);
         plugin->SetUser("blim");
         mgr->SetGridHandler(plugin);

@@ -1,6 +1,8 @@
 #if !defined(__CINT__) || defined(__CLING__)
 #include "AliAODInputHandler.h"
 #include "AliAnalysisAlien.h"
+#include "AliPhysicsSelectionTask.h"
+#include "AliMultSelectionTask.h"
 #include "AliAnalysisManager.h"
 #include "AliAnalysisTaskSigma1385PM.h"
 #include "AliAnalysisTaskSigma1385temp.h"

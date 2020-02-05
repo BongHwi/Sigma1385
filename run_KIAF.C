@@ -4,13 +4,14 @@
 #include "AliPhysicsSelectionTask.h"
 #include "AliMultSelectionTask.h"
 #include "AliAnalysisManager.h"
+#include "AliMCEventHandler.h"
 #include "AliAnalysisTaskSigma1385PM.h"
 #include "AliAnalysisTaskSigma1385temp.h"
 #include "AliESDInputHandler.h"
 #endif
 
 void run_KIAF(const char* dataset = "test1.list",
-              const char* option = "AOD_SYS_MC_Mix", ) {
+              const char* option = "AOD_SYS_MC_Mix") {
   gSystem->Load("libTree.so");
   gSystem->Load("libGeom.so");
   gSystem->Load("libVMC.so");
@@ -44,8 +45,6 @@ void run_KIAF(const char* dataset = "test1.list",
   const char* suffix = "MB_";
   if (foption.Contains("MC"))
     ismc = kTRUE;
-  if (foption.Contains("Vertex"))
-    vertexer = true;
   if (foption.Contains("Dev"))
     isDev = kTRUE;
   if (foption.Contains("AOD"))

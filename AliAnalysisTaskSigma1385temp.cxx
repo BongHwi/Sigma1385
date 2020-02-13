@@ -1343,8 +1343,18 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
       if (fIsMC) {
         if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j]))
           tmp[15] = (double)sign;  // MCflag
+        else if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j]), 1)
+          tmp[15] = (double)sign + 2;  // MCflag
+        else if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j]), 2)
+          tmp[15] = (double)sign + 4;  // MCflag
+        else if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j]), 3)
+          tmp[15] = (double)sign + 6;  // MCflag
+        else if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j]), 4)
+          tmp[15] = (double)sign + 8;  // MCflag
+        else if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j]), 5)
+          tmp[15] = (double)sign + 10;  // MCflag
         else
-          tmp[15] = 3;  // MCflag -> not true
+          tmp[15] = 13;  // MCflag -> not true
       } else
         tmp[15] = 0;  // MCflag -> data
       tmp[16] = binAnti;

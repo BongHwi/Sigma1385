@@ -1373,7 +1373,7 @@ void AliAnalysisTaskSigma1385temp::FillNtuples() {
       (isAnti) ? binAnti = kAnti : binAnti = kNormal;
       (isPionPlus) ? sign = kSigmaStarP : sign = kSigmaStarN;
 
-      GetImpactParam(track, b, bCov);
+      GetImpactParam(track1, b, bCov);
 
       tmp[0] = GetTPCnSigma(track1, AliPID::kPion);  // PIDSigmaStarPion
       tmp[1] = b[1];           // DCASigmaStarPionToPrimVertexZ

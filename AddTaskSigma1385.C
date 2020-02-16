@@ -73,7 +73,7 @@ AliAnalysisTaskSigma1385temp* AddTaskSigma1385(
     mgr->ConnectOutput(taskSigma1385, 1, coutputSigma1385);
 
     AliAnalysisDataContainer* coutputSigma1385Tuple = mgr->CreateContainer(
-        Form("%s%s_tree",taskname, suffix), TNtupleD::Class(), AliAnalysisManager::kOutputContainer,
+        Form("%s%s_tree",taskname, suffix), TNtupleF::Class(), AliAnalysisManager::kOutputContainer,
         "AnalysisResults.root");
     coutputSigma1385Tuple->SetSpecialOutput();
     mgr->ConnectOutput(taskSigma1385, 2, coutputSigma1385Tuple);

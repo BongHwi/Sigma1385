@@ -237,7 +237,7 @@ AliAnalysisTaskSigma1385temp::~AliAnalysisTaskSigma1385temp() {}
 //___________________________________________________________________
 void AliAnalysisTaskSigma1385temp::SetCutOpen() {
   // Pion cuts
-  SetFilterbitSigmaStarPion(1);
+  SetFilterbitSigmaStarPion(32);
   SetMaxNsigSigmaStarPion(5);
   SetMaxEtaSigmaStarPion(0.8);
   SetMaxVertexZSigmaStarPion(99);

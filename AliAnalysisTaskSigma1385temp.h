@@ -2,7 +2,7 @@
 #define AliAnalysisTaskSigma1385temp_H
 
 #include <THnSparse.h>
-#include <TNtupleD.h>
+#include <TNtuple.h>
 
 #include <deque>
 
@@ -134,7 +134,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   AliMCEvent* fMCEvent;        //!
   THistManager* fHistos;       //!
   AliAODVertex* fVertex;       //!
-  TNtupleD* fNtupleSigma1385;  //!
+  TNtuple* fNtupleSigma1385;  //!
   TClonesArray* fMCArray;      //!
 
   Bool_t fIsAOD;        //!

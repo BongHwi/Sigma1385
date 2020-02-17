@@ -230,7 +230,7 @@ AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp(const char* name,
       fGoodV0Array() {
   DefineInput(0, TChain::Class());
   DefineOutput(1, TList::Class());
-  DefineOutput(2, TNtupleF::Class());
+  DefineOutput(2, TNtuple::Class());
 }
 //_____________________________________________________________________________
 AliAnalysisTaskSigma1385temp::~AliAnalysisTaskSigma1385temp() {}
@@ -386,7 +386,7 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
   fEMpool.resize(fBinCent.GetNbins() + 1,
                  std::vector<eventpool>(fBinZ.GetNbins() + 1));
 
-  fNtupleSigma1385 = new TNtupleF(
+  fNtupleSigma1385 = new TNtuple(
       "fNtupleSigma1385", "Sigma1385",
       "PIDSigmaStarPion:DCASigmaStarPionToPrimVertexZ:"
       "DCASigmaStarPionToPrimVertexR:EtaSigmaStarPion:PhiSigmaStarPion:"

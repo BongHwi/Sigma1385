@@ -380,6 +380,11 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
                          100);
       fHistos->CreateTH2("QAcut/hSigmaStarAsymm_true_selected", "", 100, 0, 1,
                          100, 0, 100);
+      fHistos->CreateTH2("QAcut/hMCBkg1", "", 150, 0, 15, 150, 1.25, 1.4);
+      fHistos->CreateTH2("QAcut/hMCBkg2", "", 150, 0, 15, 150, 1.25, 1.4);
+      fHistos->CreateTH2("QAcut/hMCBkg3", "", 150, 0, 15, 150, 1.25, 1.4);
+      fHistos->CreateTH2("QAcut/hMCBkg4", "", 150, 0, 15, 150, 1.25, 1.4);
+      fHistos->CreateTH2("QAcut/hMCBkg5", "", 150, 0, 15, 150, 1.25, 1.4);
     }
     fHistos->CreateTH1("QAcut/hLambdaAntiCheck", "", 4, -0.5, 3.5);
   }
@@ -1112,6 +1117,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
           FillTHnSparse("Sigma1385_mc",
                         {(double)binAnti, (double)sign, (double)fCent,
                          vecSigmaStar.Pt(), vecSigmaStar.M()});
+          fHistos->FillTH2("QAcut/hMCBkg1", vecSigmaStar.Pt(), vecSigmaStar.M());
         }
         if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j], 2)) {
           (isPionPlus) ? sign = kSigmaStarPBkg_type2
@@ -1119,6 +1125,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
           FillTHnSparse("Sigma1385_mc",
                         {(double)binAnti, (double)sign, (double)fCent,
                          vecSigmaStar.Pt(), vecSigmaStar.M()});
+          fHistos->FillTH2("QAcut/hMCBkg2", vecSigmaStar.Pt(), vecSigmaStar.M());
         }
         if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j], 3)) {
           (isPionPlus) ? sign = kSigmaStarPBkg_type3
@@ -1126,6 +1133,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
           FillTHnSparse("Sigma1385_mc",
                         {(double)binAnti, (double)sign, (double)fCent,
                          vecSigmaStar.Pt(), vecSigmaStar.M()});
+          fHistos->FillTH2("QAcut/hMCBkg3", vecSigmaStar.Pt(), vecSigmaStar.M());
         }
         if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j], 4)) {
           (isPionPlus) ? sign = kSigmaStarPBkg_type4
@@ -1133,6 +1141,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
           FillTHnSparse("Sigma1385_mc",
                         {(double)binAnti, (double)sign, (double)fCent,
                          vecSigmaStar.Pt(), vecSigmaStar.M()});
+          fHistos->FillTH2("QAcut/hMCBkg4", vecSigmaStar.Pt(), vecSigmaStar.M());
         }
         if (IsTrueSigmaStar(fGoodV0Array[i][0], fGoodTrackArray[j], 5)) {
           (isPionPlus) ? sign = kSigmaStarPBkg_type5
@@ -1140,6 +1149,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
           FillTHnSparse("Sigma1385_mc",
                         {(double)binAnti, (double)sign, (double)fCent,
                          vecSigmaStar.Pt(), vecSigmaStar.M()});
+          fHistos->FillTH2("QAcut/hMCBkg5", vecSigmaStar.Pt(), vecSigmaStar.M());
         }
       }
     }  // pion loop

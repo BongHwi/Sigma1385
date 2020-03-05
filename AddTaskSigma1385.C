@@ -18,6 +18,7 @@ AliAnalysisTaskSigma1385temp* AddTaskSigma1385(
         new AliAnalysisTaskSigma1385temp(Form("%s%s", taskname, suffix), IsMC);
     taskSigma1385->fEventCuts.fCentralityFramework = 1;
     taskSigma1385->fEventCuts.SetMaxVertexZposition(10);
+    taskSigma1385->fEventCuts.SelectOnlyInelGt0(false);
     std::cout << "AddTaskSigma1385:: Option: " << option << std::endl;
     if (foption.Contains("MC")) {
         std::cout << "AliAnalysisTaskSigma1385temp:: MC mode " << std::endl;

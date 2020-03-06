@@ -28,6 +28,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   void SetINEL(Bool_t input) { fIsINEL = input; }
   void SetHighMult(Bool_t input) { fIsHM = input; }
   void SetAsymmCut(Bool_t input) { fUseAsymmCut = input; }
+  void SetOnlyUseOnTheFlyV0(Bool_t input) { fOnlyUseOnTheFlyV0 = input; }
   void SetFillnTuple(Bool_t fillntuple) { fFillnTuple = fillntuple; }
 
   // Setter for cut variables
@@ -130,23 +131,24 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   AliESDtrackCuts* fTrackCuts;   //!
   AliPIDResponse* fPIDResponse;  //!
 
-  AliVEvent* fEvt;             //!
-  AliMCEvent* fMCEvent;        //!
-  THistManager* fHistos;       //!
-  AliAODVertex* fVertex;       //!
+  AliVEvent* fEvt;            //!
+  AliMCEvent* fMCEvent;       //!
+  THistManager* fHistos;      //!
+  AliAODVertex* fVertex;      //!
   TNtuple* fNtupleSigma1385;  //!
-  TClonesArray* fMCArray;      //!
+  TClonesArray* fMCArray;     //!
 
-  Bool_t fIsAOD;        //!
-  Bool_t fIsNano;       //!
-  Bool_t fSetMixing;    //
-  Bool_t fFillQAPlot;   //
-  Bool_t fIsMC;         //
-  Bool_t fIsPrimaryMC;  //
-  Bool_t fFillnTuple;   //
-  Bool_t fIsINEL;       //
-  Bool_t fIsHM;         //
-  Bool_t fUseAsymmCut;  //
+  Bool_t fIsAOD;              //!
+  Bool_t fIsNano;             //!
+  Bool_t fSetMixing;          //
+  Bool_t fFillQAPlot;         //
+  Bool_t fIsMC;               //
+  Bool_t fIsPrimaryMC;        //
+  Bool_t fFillnTuple;         //
+  Bool_t fIsINEL;             //
+  Bool_t fIsHM;               //
+  Bool_t fUseAsymmCut;        //
+  Bool_t fOnlyUseOnTheFlyV0;  //
 
   mixingpool fEMpool;  //!
   TAxis fBinCent;      //!

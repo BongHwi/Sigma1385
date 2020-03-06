@@ -142,6 +142,7 @@ ClassImp(AliAnalysisTaskSigma1385temp)
       fIsINEL(kFALSE),
       fIsHM(kFALSE),
       fUseAsymmCut(kFALSE),
+      fOnlyUseOnTheFlyV0(kFALSE),
       fEMpool(0),
       fBinCent(),
       fBinZ(),
@@ -198,6 +199,7 @@ AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp(const char* name,
       fIsINEL(kFALSE),
       fIsHM(kFALSE),
       fUseAsymmCut(kFALSE),
+      fOnlyUseOnTheFlyV0(kFALSE),
       fEMpool(0),
       fBinCent(),
       fBinZ(),
@@ -367,7 +369,7 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
     fHistos->CreateTH2("QAcut/hTPCPIDAntiLambdaPion", "", 200, 0, 20, 200, 0,
                        200);
     fHistos->CreateTH1("QAcut/hDCA_lambdaDaughters", "", 300, 0, 3, "s");
-    fHistos->CreateTH1("QAcut/hDCAlambdaPV", "", 50, 0, 0.5, "s");
+    fHistos->CreateTH1("QAcut/hDCAlambdaPV", "", 500, 0, 0.5, "s");
     fHistos->CreateTH1("QAcut/hDCALambdaPVProton", "", 50, 0, 0.5, "s");
     fHistos->CreateTH1("QAcut/hDCALambdaPVPion", "", 50, 0, 0.5, "s");
     fHistos->CreateTH1("QAcut/hCosPAlambda", "", 50, 0.95, 1.0, "s");
@@ -631,6 +633,11 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
       v0ESD = ((AliESDEvent*)fEvt)->GetV0(it);
       if (!v0ESD)
         continue;
+      
+      if (!fOnlyUseOnTheFlyV0 && v0ESD->GetOnFlyStatus()) 
+        continue;
+      if (fOnlyUseOnTheFlyV0 && !v0ESD->GetOnFlyStatus()) 
+        continue;
 
       if (TMath::Abs(v0ESD->GetPindex()) == TMath::Abs(v0ESD->GetNindex()))
         continue;
@@ -849,12 +856,17 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
       lPIDAntiLambda = kFALSE;
       AcceptedV0 = kTRUE;
       isAntiCheck = 0;
-      v0AOD = ((AliAODEvent*)fEvt)->GetV0(it);
+      v0AOD = dynamic_cast<AliAODv0 *>(((AliAODEvent*)fEvt)->GetV0(it));
       if (!v0AOD)
         continue;
-
-      if (TMath::Abs(v0AOD->GetPosID()) == TMath::Abs(v0AOD->GetNegID()))
+      if (!fOnlyUseOnTheFlyV0 && v0AOD->GetOnFlyStatus()) 
         continue;
+      if (fOnlyUseOnTheFlyV0 && !v0AOD->GetOnFlyStatus()) 
+        continue;
+
+      if (TMath::Abs(v0AOD->GetPosID()) == TMath::Abs(v0AOD->GetNegID())){
+        continue;
+      }
 
       AliAODTrack* pTrackV0 =
           (AliAODTrack*)(v0AOD->GetSecondaryVtx()->GetDaughter(0));
@@ -862,17 +874,19 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodV0Selection() {
           (AliAODTrack*)(v0AOD->GetSecondaryVtx()->GetDaughter(1));
 
       // filter like-sign V0
-      if (TMath::Abs(((pTrackV0->GetSign()) - (nTrackV0->GetSign()))) < 0.1)
+      if (TMath::Abs(((pTrackV0->GetSign()) - (nTrackV0->GetSign()))) < 0.1) {
         if (fFillQAPlot) 
           AcceptedV0 = kFALSE;
         else
           continue;
+        }
 
       // PID cuts
       nTPCNSigProton = GetTPCnSigma(pTrackV0, AliPID::kProton);
       nTPCNSigAntiProton = GetTPCnSigma(nTrackV0, AliPID::kProton);
       nTPCNSigPion = GetTPCnSigma(nTrackV0, AliPID::kPion);
       nTPCNSigAntiPion = GetTPCnSigma(pTrackV0, AliPID::kPion);
+
 
       if ((TMath::Abs(nTPCNSigProton) > fTPCNsigLambdaProtonCut) &&
           (TMath::Abs(nTPCNSigPion) > fTPCNsigLambdaPionCut) &&

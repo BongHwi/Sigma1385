@@ -1244,14 +1244,62 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
         }
       }
     }  // pion loop
+  }
+  // Separated Mixing loop
+  if (fSetMixing && !SkipMixing && (fCentBin >= 0) && (fZbin >= 0)) {
+    for (UInt_t i = 0; i < nV0; i++) {
+      if (!fIsAOD) {
+        v0ESD = ((AliESDEvent*)fEvt)->GetV0(fGoodV0Array[i][0]);
+        if (!v0ESD)
+          continue;
+        AliESDtrack* pTrackV0 =
+            ((AliESDEvent*)fEvt)->GetTrack(TMath::Abs(v0ESD->GetPindex()));
+        AliESDtrack* nTrackV0 =
+            ((AliESDEvent*)fEvt)->GetTrack(TMath::Abs(v0ESD->GetNindex()));
+        pID = pTrackV0->GetID();
+        nID = nTrackV0->GetID();
 
-    if (fSetMixing && !SkipMixing && (fCentBin >= 0) && (fZbin >= 0)) {
+        if (fGoodV0Array[i][1] > 0)
+          isAnti = true;
+        else
+          isAnti = false;
+
+        if (!isAnti)
+          v0ESD->ChangeMassHypothesis(kLambda0);
+        else
+          v0ESD->ChangeMassHypothesis(kLambda0Bar);
+
+        vecLambda.SetXYZM(v0ESD->Px(), v0ESD->Py(), v0ESD->Pz(),
+                          v0ESD->GetEffMass());
+      } else {
+        v0AOD = ((AliAODEvent*)fEvt)->GetV0(fGoodV0Array[i][0]);
+        if (!v0AOD)
+          continue;
+        AliAODTrack* pTrackV0 =
+            (AliAODTrack*)(v0AOD->GetSecondaryVtx()->GetDaughter(0));
+        AliAODTrack* nTrackV0 =
+            (AliAODTrack*)(v0AOD->GetSecondaryVtx()->GetDaughter(1));
+        pID = pTrackV0->GetID();
+        nID = nTrackV0->GetID();
+
+        if (fGoodV0Array[i][1] > 0)
+          isAnti = true;
+        else
+          isAnti = false;
+
+        if (!isAnti)
+          vecLambda.SetXYZM(v0AOD->MomV0X(), v0AOD->MomV0Y(), v0AOD->MomV0Z(),
+                            v0AOD->MassLambda());
+        else
+          vecLambda.SetXYZM(v0AOD->MomV0X(), v0AOD->MomV0Y(), v0AOD->MomV0Z(),
+                            v0AOD->MassAntiLambda());
+      }
       for (UInt_t jt = 0; jt < trackpool.size(); jt++) {
         track_mix = trackpool.at(jt);
         if (track_mix->GetID() == pID || track_mix->GetID() == nID)
           continue;
         vecPionMix.SetXYZM(track_mix->Px(), track_mix->Py(), track_mix->Pz(),
-                           pionMass);
+                            pionMass);
         vecSigmaStar = vecLambda + vecPionMix;
         // Y cut
         if ((vecSigmaStar.Rapidity() > fSigmaStarYCutHigh) ||
@@ -1281,7 +1329,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
 
         FillTHnSparse("Sigma1385_data",
                       {(double)binAnti, (double)sign, (double)fCent,
-                       vecSigmaStar.Pt(), vecSigmaStar.M()});
+                        vecSigmaStar.Pt(), vecSigmaStar.M()});
       }
     }
   }

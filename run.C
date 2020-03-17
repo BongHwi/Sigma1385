@@ -39,7 +39,7 @@ void run(const char* taskname = "Sigma1385",
          ,
          UInt_t istart = 0,
          UInt_t iend = 50,
-         const char* localorgrid = "grid") {
+         const char* localorgrid = "local") {
     gSystem->Load("libTree.so");
     gSystem->Load("libGeom.so");
     gSystem->Load("libVMC.so");
@@ -128,8 +128,16 @@ void run(const char* taskname = "Sigma1385",
         reinterpret_cast<AliAnalysisTaskSigma1385temp*>(gInterpreter->ExecuteMacro(
             Form("AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname, option,
                  nmix, suffix)));
-
-     //mgr->SetDebugLevel(3);
+    myTask->fEventCuts.fUseVariablesCorrelationCuts = kTRUE;
+    // myTask->SetFillQAPlot(false);
+    // myTask->SetOnlyUseOnTheFlyV0(true);
+    // AliRsnMiniAnalysisTask* myTask2 =
+    //     reinterpret_cast<AliRsnMiniAnalysisTask*>(gInterpreter->ExecuteMacro(
+    //         Form("AddTaskSigmaStar_pp13TeV.C(\"%s\",%d,%d,%d,%d,%d)", "Sigma1385MB",0,0,20010,0,0)));
+    
+    // mgr->SetDebugLevel(5);
+    //  AliLog::SetGlobalDebugLevel(2);
+    //  AliLog::SetClassDebugLevel("AliRsnCutV0", AliLog::kDebug+3);
     if (!mgr->InitAnalysis())
         return;
     mgr->PrintStatus();
@@ -175,7 +183,9 @@ void run(const char* taskname = "Sigma1385",
             gROOT->ProcessLine(esdChain.str().c_str()));
 
         chain->Lookup();
+        TStopwatch watch;
         mgr->StartAnalysis(localorgrid, chain);
+        watch.Print();
     }
     //----GRID  MODE-------------------------------------------------
     else {

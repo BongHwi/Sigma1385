@@ -532,9 +532,9 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
     if (fFillnTuple)
       FillNtuples();
   }
-  if (fSetMixing && fGoodTrackArray.size()) {
-    FillTrackToEventPool();  // use only pion track pool.
-  }
+  // if (fSetMixing && fGoodTrackArray.size()) {
+  //   FillTrackToEventPool();  // use only pion track pool.
+  // }
   PostData(1, fHistos->GetListOfHistograms());
   PostData(2, fNtupleSigma1385);
 }
@@ -548,6 +548,15 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
   Float_t b[2];
   Float_t bCov[3];
   Double_t nTPCNSigPion, pionZ, pionPt, pionSigmaDCA_r, pionDCA_r, lEta;
+
+  tracklist* etl;
+  eventpool* ep;
+  // Event mixing pool
+  if ( (fCentBin >= 0) && (fZbin >= 0) && fSetMixing) {
+      ep = &fEMpool[fCentBin][fZbin];
+      ep->push_back(tracklist());
+      etl = &(ep->back());
+  }
 
   for (UInt_t it = 0; it < nTracks; it++) {
     track = (AliVTrack*)fEvt->GetTrack(it);
@@ -602,6 +611,16 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
     }
 
     fGoodTrackArray.push_back(it);
+  }
+  if ((fCentBin >= 0) && (fZbin >= 0) && fSetMixing) {
+    if (!goodtrackindices.size())
+        ep->pop_back();
+        Int_t epsize = ep->size();
+        if (epsize > fnMix) {
+            for (auto it : ep->front())
+                delete it;
+            ep->pop_front();
+    }
   }
   return fGoodTrackArray.size();
 }
@@ -1091,7 +1110,10 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
     if ((int)ep.size() < (int)fnMix)
       SkipMixing = kTRUE;
     if (!SkipMixing) {
-      for (auto pool : ep) {
+      auto n = (int)0;
+      for (auto pool: ep){
+        if (n == (ep.size() -1 )) 
+          continue;
         for (auto track : pool)
           trackpool.push_back((AliVTrack*)track);
       }

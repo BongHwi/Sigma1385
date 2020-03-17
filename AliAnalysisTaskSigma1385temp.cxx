@@ -613,7 +613,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
     fGoodTrackArray.push_back(it);
   }
   if ((fCentBin >= 0) && (fZbin >= 0) && fSetMixing) {
-    if (!goodtrackindices.size())
+    if (!fGoodTrackArray.size())
         ep->pop_back();
         Int_t epsize = ep->size();
         if (epsize > fnMix) {

@@ -135,6 +135,7 @@ ClassImp(AliAnalysisTaskSigma1385temp)
       fIsAOD(kFALSE),
       fIsNano(kFALSE),
       fSetMixing(kFALSE),
+      fNoMixingBin(kFALSE),
       fFillQAPlot(kTRUE),
       fIsMC(kFALSE),
       fIsPrimaryMC(kFALSE),
@@ -192,6 +193,7 @@ AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp(const char* name,
       fIsAOD(kFALSE),
       fIsNano(kFALSE),
       fSetMixing(kFALSE),
+      fNoMixingBin(kFALSE),
       fFillQAPlot(kTRUE),
       fIsMC(MCcase),
       fIsPrimaryMC(kFALSE),
@@ -523,6 +525,7 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
   fCentBin = fBinCent.FindBin(fCent) - 1;  // Event mixing cent bin
   if (fIsINEL)
     fCentBin = 0;  // for INEL case
+  fNoMixingBin = ( (fZbin >= 0) && (fCentBin >= 0) ) ? kFALSE : kTRUE;
 
   bool checkPion = GoodTracksSelection();
   bool checkV0 = GoodV0Selection();
@@ -552,7 +555,7 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
   tracklist* etl;
   eventpool* ep;
   // Event mixing pool
-  if ( (fCentBin >= 0) && (fZbin >= 0) && fSetMixing) {
+  if ( !fNoMixingBin && fSetMixing) {
       ep = &fEMpool[fCentBin][fZbin];
       ep->push_back(tracklist());
       etl = &(ep->back());
@@ -611,8 +614,11 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
     }
 
     fGoodTrackArray.push_back(it);
+    // Event mixing pool
+    if (!fNoMixingBin && fSetMixing)
+        etl->push_back((AliVTrack*)track->Clone());
   }
-  if ((fCentBin >= 0) && (fZbin >= 0) && fSetMixing) {
+  if (!fNoMixingBin && fSetMixing) {
     if (!fGoodTrackArray.size())
         ep->pop_back();
         Int_t epsize = ep->size();
@@ -1269,7 +1275,7 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
       }
     }  // pion loop
 
-    if (fSetMixing && !SkipMixing && (fCentBin >= 0) && (fZbin >= 0)) {
+    if (fSetMixing && !SkipMixing && !fNoMixingBin) {
       for (UInt_t jt = 0; jt < trackpool.size(); jt++) {
         track_mix = trackpool.at(jt);
         if (track_mix->GetID() == pID || track_mix->GetID() == nID)

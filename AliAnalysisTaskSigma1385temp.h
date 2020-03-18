@@ -141,6 +141,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   Bool_t fIsAOD;              //!
   Bool_t fIsNano;             //!
   Bool_t fSetMixing;          //
+  Bool_t fNoMixingBin;        //
   Bool_t fFillQAPlot;         //
   Bool_t fIsMC;               //
   Bool_t fIsPrimaryMC;        //

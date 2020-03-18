@@ -1110,12 +1110,14 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
     if ((int)ep.size() < (int)fnMix)
       SkipMixing = kTRUE;
     if (!SkipMixing) {
-      auto n = (int)0;
+      Int_t epsize = ep.size();
+      Int_t n = 0;
       for (auto pool: ep){
-        if (n == (ep.size() -1 )) 
+        if (n == (epsize -1)) 
           continue;
         for (auto track : pool)
           trackpool.push_back((AliVTrack*)track);
+        n++;
       }
     }
   }

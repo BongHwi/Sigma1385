@@ -110,10 +110,10 @@ void run_KIAF(const char* dataset = "test1.list",
 
     
   } else {
-      AliAnalysisTaskTrackMixer* myTaskMixer =
-          reinterpret_cast<AliAnalysisTaskTrackMixer*>(gInterpreter->ExecuteMacro(
-              Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
-                  nmix, suffix)));
+      // AliAnalysisTaskTrackMixer* myTaskMixer =
+      //     reinterpret_cast<AliAnalysisTaskTrackMixer*>(gInterpreter->ExecuteMacro(
+      //         Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
+      //             nmix, suffix)));
       AliAnalysisTaskSigma1385PM* myTask =
         reinterpret_cast<AliAnalysisTaskSigma1385PM*>(
             gInterpreter->ExecuteMacro(

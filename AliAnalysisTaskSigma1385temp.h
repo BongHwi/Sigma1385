@@ -2,13 +2,13 @@
 #define AliAnalysisTaskSigma1385temp_H
 
 #include <THnSparse.h>
-#include <TNtuple.h>
+#include <TNtupleD.h>
 
 #include <deque>
 
 #include "AliAnalysisTaskSE.h"
-#include "AliEventCuts.h"
 #include "AliAnalysisTaskTrackMixertemp.h"
+#include "AliEventCuts.h"
 class THistManager;
 class AliPIDResponse;
 class AliESDtrackCuts;
@@ -23,8 +23,12 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   virtual void UserExec(Option_t* option);
   virtual void Terminate(Option_t* option);
   void SetFillQAPlot(Bool_t input) { fFillQAPlot = input; }
-  void SetMixerTask(AliAnalysisTaskTrackMixertemp* mixerTask) { fMixingPool = mixerTask; }
-  void SetUseBuiltinMixer(Bool_t builtinmixer) { fUseBuiltinMixer = builtinmixer; }
+  void SetMixerTask(AliAnalysisTaskTrackMixertemp* mixerTask) {
+    fMixingPool = mixerTask;
+  }
+  void SetUseBuiltinMixer(Bool_t builtinmixer) {
+    fUseBuiltinMixer = builtinmixer;
+  }
   void SetMixing(Bool_t setmixing) { fSetMixing = setmixing; }
   void SetnMix(Int_t nMix) { fnMix = nMix; }
   void SetIsPrimaryMC(Bool_t isprimarymc) { fIsPrimaryMC = isprimarymc; }
@@ -102,6 +106,9 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   Bool_t IsTrueSigmaStar(UInt_t v0, UInt_t pion, UInt_t BkgCheck = 0);
   double GetTPCnSigma(AliVTrack* track, AliPID::EParticleType type);
   void GetImpactParam(AliVTrack* track, Float_t p[2], Float_t cov[3]);
+
+  Bool_t IsSelectedTPCGeoCut(AliAODTrack* track);
+  Bool_t IsSelectedTPCGeoCut(AliESDtrack* track);
   void SetCutOpen();
 
   // helper
@@ -125,28 +132,35 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   TAxis AxisStr(TString name, std::vector<TString> bin);
 
   AliEventCuts fEventCuts;  // Event cuts
+  // TPC GeoCut
+  Bool_t fCheckTPCGeo;                   //
+  Double_t fTPCActiveLengthCutDeltaY;    //
+  Double_t fTPCActiveLengthCutDeltaZ;    //
+  Double_t fRequireCutGeoNcrNclLength;   //
+  Double_t fRequireCutGeoNcrNclGeom1Pt;  //
+  Double_t fCutGeoNcrNclFractionNcr;     //
+  Double_t fCutGeoNcrNclFractionNcl;     //
 
  private:
   typedef std::vector<AliVTrack*> tracklist;
   typedef std::deque<tracklist> eventpool;
   typedef std::vector<std::vector<eventpool>> mixingpool;
 
-  AliESDtrackCuts* fTrackCuts;   //!
-  AliPIDResponse* fPIDResponse;  //!
-  AliAnalysisTaskTrackMixertemp* fMixingPool; //!
+  AliESDtrackCuts* fTrackCuts;             //!
+  AliPIDResponse* fPIDResponse;            //!
+  AliAnalysisTaskTrackMixertemp* fMixingPool;  //!
 
-  AliVEvent* fEvt;            //!
-  AliMCEvent* fMCEvent;       //!
-  THistManager* fHistos;      //!
-  AliAODVertex* fVertex;      //!
-  TNtuple* fNtupleSigma1385;  //!
-  TClonesArray* fMCArray;     //!
+  AliVEvent* fEvt;             //!
+  AliMCEvent* fMCEvent;        //!
+  THistManager* fHistos;       //!
+  AliAODVertex* fVertex;       //!
+  TNtupleD* fNtupleSigma1385;  //!
+  TClonesArray* fMCArray;      //!
 
   Bool_t fIsAOD;              //!
   Bool_t fIsNano;             //!
   Bool_t fSetMixing;          //
   Bool_t fUseBuiltinMixer;    //
-  Bool_t fNoMixingBin;        //
   Bool_t fFillQAPlot;         //
   Bool_t fIsMC;               //
   Bool_t fIsPrimaryMC;        //
@@ -160,6 +174,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   TAxis fBinCent;      //!
   TAxis fBinZ;         //!
   Double_t fPosPV[3];  //!
+  Double_t fMagField;  //!
 
   Double_t fCent;  //!
   Int_t fnMix;     //!
@@ -197,7 +212,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   std::vector<UInt_t> fGoodTrackArray;
   std::vector<std::vector<UInt_t>> fGoodV0Array;
 
-  ClassDef(AliAnalysisTaskSigma1385temp, 11);
+  ClassDef(AliAnalysisTaskSigma1385temp, 12);
   // Add rapidity/radius/Lifetime/Y cut of lambda
   // Add NanoOption
   // 4: Add GetImpactParm function for nano
@@ -208,6 +223,7 @@ class AliAnalysisTaskSigma1385temp : public AliAnalysisTaskSE {
   // 9: Update class format
   // 10: Fix streamer issue
   // 11: Add Asymm cut option
+  // 12: Add OnTheFlyV0 option
 };
 
 #endif

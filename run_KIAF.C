@@ -130,7 +130,11 @@ void run_KIAF(const char* dataset = "test1.list",
   // TChain* chain = CreateESDChain(dataset,-1);
   TChain* chain = new TChain("ESDTree");
   std::stringstream esdChain;
-  if (isaod) {
+  if(isNano){
+    esdChain << ".x " << "CreateNanoAODChain.C(";
+    esdChain << "\"" << dataset << "\", -1);";
+  }
+  else if (isaod) {
     esdChain << ".x " << gSystem->Getenv("ALICE_PHYSICS")
              << "/PWG/EMCAL/macros/CreateAODChain.C(";
     esdChain << "\"" << dataset << "\", -1);";

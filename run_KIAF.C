@@ -12,7 +12,7 @@
 #endif
 
 void run_KIAF(const char* dataset = "test1.list",
-              const char* option = "AOD_SYS_Dev_Mix") {
+              const char* option = "AOD_Dev_Mix") {
   gSystem->Load("libTree.so");
   gSystem->Load("libGeom.so");
   gSystem->Load("libVMC.so");
@@ -37,6 +37,7 @@ void run_KIAF(const char* dataset = "test1.list",
   bool isaa = kFALSE;
   bool ismc = kFALSE;
   bool isDev = kFALSE;
+  bool isNano = kFALSE;
   bool setmixing = kFALSE;
   bool isaod = kFALSE;
   int nmix = 10;
@@ -51,6 +52,8 @@ void run_KIAF(const char* dataset = "test1.list",
     isDev = kTRUE;
   if (foption.Contains("AOD"))
     isaod = true;
+  if (foption.Contains("Nano"))
+    isNano = true;
 
   // analysis manager
   AliAnalysisManager* mgr =
@@ -68,24 +71,27 @@ void run_KIAF(const char* dataset = "test1.list",
     AliMCEventHandler* mcHandler = new AliMCEventHandler();
     mgr->SetMCtruthEventHandler(mcHandler);
   }
-  //
-  // Physics Selection
-  AliPhysicsSelectionTask* physSelTask =
-      reinterpret_cast<AliPhysicsSelectionTask*>(gInterpreter->ExecuteMacro(
-          Form("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C(%d)",
-               ismc)));
-  // Multiplicity selection
-  AliMultSelectionTask* MultSlection =
-      reinterpret_cast<AliMultSelectionTask*>(gInterpreter->ExecuteMacro(
-          "$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/"
-          "AddTaskMultSelection.C"));
-  MultSlection->SetAddInfo(kTRUE);
-  MultSlection->SetSelectedTriggerClass(AliVEvent::kAny);
-  // MultSlection->SetAlternateOADBforEstimators("LHC16k"); //if needed
-  // PID response
-  AliAnalysisTask* fPIDResponse =
-      reinterpret_cast<AliAnalysisTask*>(gInterpreter->ExecuteMacro(
-          Form("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C(%d)", ismc)));
+  if(!isNano){
+    //
+    // Physics Selection
+    AliPhysicsSelectionTask* physSelTask =
+        reinterpret_cast<AliPhysicsSelectionTask*>(gInterpreter->ExecuteMacro(
+            Form("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C(%d)",
+                ismc)));
+    // Multiplicity selection
+    AliMultSelectionTask* MultSlection =
+        reinterpret_cast<AliMultSelectionTask*>(gInterpreter->ExecuteMacro(
+            "$ALICE_PHYSICS/OADB/COMMON/MULTIPLICITY/macros/"
+            "AddTaskMultSelection.C"));
+    MultSlection->SetAddInfo(kTRUE);
+    MultSlection->SetSelectedTriggerClass(AliVEvent::kAny);
+    // MultSlection->SetAlternateOADBforEstimators("LHC16k"); //if needed
+    // PID response
+    AliAnalysisTask* fPIDResponse =
+        reinterpret_cast<AliAnalysisTask*>(gInterpreter->ExecuteMacro(
+            Form("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C(%d)", ismc)));
+  }
+  
   if (isDev) {
     gInterpreter->LoadMacro("AliAnalysisTaskTrackMixertemp.cxx+g");
     gInterpreter->LoadMacro("AliAnalysisTaskSigma1385temp.cxx+g");
@@ -101,17 +107,7 @@ void run_KIAF(const char* dataset = "test1.list",
                 Form("AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname,
                      option, nmix, suffix)));
 
-    // myTask->SetAssymCut(kTRUE);
-    // myTask->SetSigmaStarAssymCutHigh(0.95);
-    // myTask->SetSigmaStarAssymCutLow(0.3);
-    // myTask->SetFillQAPlot(kTRUE);
-    // if(ismc)
-    //		myTask->SetFillnTuple(true);
-    // myTask->SetLowRadiusV0(0.5);
-    // myTask->SetHighRadiusV0(200);
-    // myTask->SetMaxDCAV0daughters(0.5);
-    // myTask->SetMaxDCAPVV0PosDaughter(0.0);
-    // myTask->SetMaxDCAPVV0NegDaughter(0.0);
+    
   } else {
       AliAnalysisTaskSigma1385PM* myTask =
         reinterpret_cast<AliAnalysisTaskSigma1385PM*>(

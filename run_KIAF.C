@@ -7,11 +7,12 @@
 #include "AliMCEventHandler.h"
 #include "AliAnalysisTaskSigma1385PM.h"
 #include "AliAnalysisTaskSigma1385temp.h"
+#include "AliAnalysisTaskTrackMixertemp.h"
 #include "AliESDInputHandler.h"
 #endif
 
 void run_KIAF(const char* dataset = "test1.list",
-              const char* option = "AOD_SYS_MC_Mix") {
+              const char* option = "AOD_SYS_Dev_Mix") {
   gSystem->Load("libTree.so");
   gSystem->Load("libGeom.so");
   gSystem->Load("libVMC.so");
@@ -42,6 +43,7 @@ void run_KIAF(const char* dataset = "test1.list",
   bool highmult = kFALSE;
   TString foption = option;
   const char* taskname = "Sigma1385";
+  const char* tasknameMixer = "TrackMixer";
   const char* suffix = "MB_";
   if (foption.Contains("MC"))
     ismc = kTRUE;
@@ -85,10 +87,14 @@ void run_KIAF(const char* dataset = "test1.list",
       reinterpret_cast<AliAnalysisTask*>(gInterpreter->ExecuteMacro(
           Form("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C(%d)", ismc)));
   if (isDev) {
+    gInterpreter->LoadMacro("AliAnalysisTaskTrackMixertemp.cxx+g");
     gInterpreter->LoadMacro("AliAnalysisTaskSigma1385temp.cxx+g");
     // AliAnalysisTaskXi1530temp *myTask =
     // reinterpret_cast<AliAnalysisTaskXi1530temp*>(gInterpreter->ExecuteMacro(Form("AddTaskXi1530.c(\"%s\",\"%s\",%i,%d,%d,%d,%d)",taskname,option,nmix,highmult,isaa,ismc,setmixing)));
-
+    AliAnalysisTaskTrackMixertemp* myTaskMixer =
+        reinterpret_cast<AliAnalysisTaskTrackMixertemp*>(gInterpreter->ExecuteMacro(
+            Form("AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
+                 nmix, suffix)));
     AliAnalysisTaskSigma1385temp* myTask =
         reinterpret_cast<AliAnalysisTaskSigma1385temp*>(
             gInterpreter->ExecuteMacro(

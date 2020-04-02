@@ -3,6 +3,7 @@
 #include "AliAnalysisAlien.h"
 #include "AliAnalysisManager.h"
 #include "AliAnalysisTaskSigma1385temp.h"
+#include "AliAnalysisTaskTrackMixertemp.h"
 #include "AliESDInputHandler.h"
 #endif
 
@@ -59,13 +60,13 @@ void run(const char* taskname = "Sigma1385",
         Form(".include %s/include", gSystem->ExpandPathName("$ALICE_ROOT")));
     gInterpreter->ProcessLine(
         Form(".include %s/include", gSystem->ExpandPathName("$ALICE_PHYSICS")));
-
+    const char* tasknameMixer = "TrackMixer";
     bool isaa = kFALSE;
     bool ismc = kFALSE;
     bool isaod = kFALSE;
     bool setmixing = kFALSE;
     bool vertexer = false;
-    int nmix = 10;
+    int nmix = 1;
     bool highmult = kFALSE;
     TString foption = option;
     const char* suffix = "MB";
@@ -121,14 +122,22 @@ void run(const char* taskname = "Sigma1385",
         Printf("no fPIDResponse");
         return;
     }
-    
+    gInterpreter->LoadMacro("AliAnalysisTaskTrackMixertemp.cxx+g");
     gInterpreter->LoadMacro("AliAnalysisTaskSigma1385temp.cxx+g");
-    
+    // AliAnalysisTaskTrackMixer* myTaskMixer =
+    //     reinterpret_cast<AliAnalysisTaskTrackMixer*>(gInterpreter->ExecuteMacro(
+    //         Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
+    //              nmix, suffix)));
+    AliAnalysisTaskTrackMixertemp* myTaskMixer =
+        reinterpret_cast<AliAnalysisTaskTrackMixertemp*>(gInterpreter->ExecuteMacro(
+            Form("AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
+                 nmix, suffix)));
+
     AliAnalysisTaskSigma1385temp* myTask =
         reinterpret_cast<AliAnalysisTaskSigma1385temp*>(gInterpreter->ExecuteMacro(
             Form("AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname, option,
                  nmix, suffix)));
-    myTask->fEventCuts.fUseVariablesCorrelationCuts = kTRUE;
+    // myTask->SetUseBuiltinMixer(kTRUE);
     // myTask->SetFillQAPlot(false);
     // myTask->SetOnlyUseOnTheFlyV0(true);
     // AliRsnMiniAnalysisTask* myTask2 =

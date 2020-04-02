@@ -54,6 +54,7 @@
 #include "AliMCEventHandler.h"
 #include "AliStack.h"
 #include "THistManager.h"
+#include "AliAnalysisTaskTrackMixertemp.h"
 
 const Double_t pi = TMath::Pi();
 const Double_t pionMass = AliPID::ParticleMass(AliPID::kPion);
@@ -126,6 +127,7 @@ ClassImp(AliAnalysisTaskSigma1385temp)
       fTrackCuts(nullptr),
       fEventCuts(),
       fPIDResponse(),
+      fMixingPool(),
       fEvt(nullptr),
       fMCEvent(nullptr),
       fHistos(nullptr),
@@ -135,6 +137,7 @@ ClassImp(AliAnalysisTaskSigma1385temp)
       fIsAOD(kFALSE),
       fIsNano(kFALSE),
       fSetMixing(kFALSE),
+      fUseBuiltinMixer(kFALSE),
       fNoMixingBin(kFALSE),
       fFillQAPlot(kTRUE),
       fIsMC(kFALSE),
@@ -184,6 +187,7 @@ AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp(const char* name,
       fTrackCuts(nullptr),
       fEventCuts(),
       fPIDResponse(),
+      fMixingPool(),
       fEvt(nullptr),
       fMCEvent(nullptr),
       fHistos(nullptr),
@@ -193,6 +197,7 @@ AliAnalysisTaskSigma1385temp::AliAnalysisTaskSigma1385temp(const char* name,
       fIsAOD(kFALSE),
       fIsNano(kFALSE),
       fSetMixing(kFALSE),
+      fUseBuiltinMixer(kFALSE),
       fNoMixingBin(kFALSE),
       fFillQAPlot(kTRUE),
       fIsMC(MCcase),
@@ -393,8 +398,9 @@ void AliAnalysisTaskSigma1385temp::UserCreateOutputObjects() {
     }
     fHistos->CreateTH1("QAcut/hLambdaAntiCheck", "", 4, -0.5, 3.5);
   }
-  fEMpool.resize(fBinCent.GetNbins() + 1,
-                 std::vector<eventpool>(fBinZ.GetNbins() + 1));
+  if(fUseBuiltinMixer)
+    fEMpool.resize(fBinCent.GetNbins() + 1,
+                   std::vector<eventpool>(fBinZ.GetNbins() + 1));
 
   fNtupleSigma1385 = new TNtuple(
       "fNtupleSigma1385", "Sigma1385",
@@ -535,9 +541,9 @@ void AliAnalysisTaskSigma1385temp::UserExec(Option_t*) {
     if (fFillnTuple)
       FillNtuples();
   }
-  // if (fSetMixing && fGoodTrackArray.size()) {
-  //   FillTrackToEventPool();  // use only pion track pool.
-  // }
+  if (fUseBuiltinMixer && fSetMixing && fGoodTrackArray.size()) {
+    FillTrackToEventPool();  // use only pion track pool.
+  }
   PostData(1, fHistos->GetListOfHistograms());
   PostData(2, fNtupleSigma1385);
 }
@@ -551,15 +557,6 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
   Float_t b[2];
   Float_t bCov[3];
   Double_t nTPCNSigPion, pionZ, pionPt, pionSigmaDCA_r, pionDCA_r, lEta;
-
-  tracklist* etl;
-  eventpool* ep;
-  // Event mixing pool
-  if ( !fNoMixingBin && fSetMixing) {
-      ep = &fEMpool[fCentBin][fZbin];
-      ep->push_back(tracklist());
-      etl = &(ep->back());
-  }
 
   for (UInt_t it = 0; it < nTracks; it++) {
     track = (AliVTrack*)fEvt->GetTrack(it);
@@ -614,19 +611,6 @@ Bool_t AliAnalysisTaskSigma1385temp::GoodTracksSelection() {
     }
 
     fGoodTrackArray.push_back(it);
-    // Event mixing pool
-    if (!fNoMixingBin && fSetMixing)
-        etl->push_back((AliVTrack*)track->Clone());
-  }
-  if (!fNoMixingBin && fSetMixing) {
-    if (!fGoodTrackArray.size())
-        ep->pop_back();
-        Int_t epsize = ep->size();
-        if (epsize > fnMix) {
-            for (auto it : ep->front())
-                delete it;
-            ep->pop_front();
-    }
   }
   return fGoodTrackArray.size();
 }
@@ -1112,7 +1096,9 @@ void AliAnalysisTaskSigma1385temp::FillTracks() {
 
   tracklist trackpool;
   if (fSetMixing) {
-    eventpool& ep = fEMpool[fCentBin][fZbin];
+    eventpool& ep = (!fUseBuiltinMixer)
+                ? fMixingPool->GetMixingPool()[fCentBin][fZbin]
+                : fEMpool[fCentBin][fZbin];
     if ((int)ep.size() < (int)fnMix)
       SkipMixing = kTRUE;
     if (!SkipMixing) {

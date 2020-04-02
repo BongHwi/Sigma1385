@@ -35,11 +35,6 @@ AliAnalysisTaskSigma1385temp* AddTaskSigma1385(
         taskSigma1385->SetSigmaStarRapidityCutHigh(0);  // default: 0.5
         std::cout << "AliAnalysisTaskSigma1385temp:: Ap mode " << std::endl;
     }
-    if (foption.Contains("Mix")) {
-        taskSigma1385->SetMixing(kTRUE);  // default: kFALSE
-        std::cout << "AliAnalysisTaskSigma1385temp:: Event Mix(" << nmix
-                  << ") mode " << std::endl;
-    }
     if (foption.Contains("HM")) {
         taskSigma1385->SetHighMult(kTRUE); // default: kFALSE
         taskSigma1385->fEventCuts.fTriggerMask =
@@ -47,19 +42,28 @@ AliAnalysisTaskSigma1385temp* AddTaskSigma1385(
         std::cout << "AliAnalysisTaskSigma1385temp:: HighMultV0 mode "
                   << std::endl;
     }
-    if (foption.Contains("INEL")) {
-        taskSigma1385->fEventCuts.fCentralityFramework = 0;
-        taskSigma1385->fEventCuts.SelectOnlyInelGt0(false);
-        taskSigma1385->SetINEL(kTRUE);  // default: kFALSE
-        std::cout << "AliAnalysisTaskSigma1385temp:: Inelastic mode " << std::endl;
+    if (foption.Contains("Mix")) {
+        taskSigma1385->SetMixing(kTRUE);
+        taskSigma1385->SetnMix(nmix);
+
+        // If we have a TrackMixer task, use it.
+        auto tasks = (TObjArray*)mgr->GetTasks();
+        auto IsMixer = kFALSE;
+        for (int ntask = 0; ntask < tasks->GetEntries(); ntask++) {
+            if((tasks->At(ntask))->InheritsFrom(AliAnalysisTaskTrackMixertemp::Class())){
+                taskSigma1385->SetMixerTask((AliAnalysisTaskTrackMixertemp*)tasks->At(ntask));
+                ((AliAnalysisTaskTrackMixertemp*)tasks->At(ntask))->SetnMix(nmix);
+                IsMixer = kTRUE;
+                break;
+            }
+        }
+        // If we don't have a TrackMixer task, use Built-in mixer.
+        if(!IsMixer) {
+            taskSigma1385->SetUseBuiltinMixer(kTRUE);
+            std::cout << "Built-in Mixer mode" << std::endl;
+        }
+        std::cout << "Event Mix mode: " << nmix << "times" << std::endl;
     }
-    if (foption.Contains("Study")) {
-        taskSigma1385->SetCutOpen();
-        taskSigma1385->SetFillnTuple(true);
-        std::cout << "AliAnalysisTaskSigma1385temp:: Cut Study mode "
-                  << std::endl;
-    }
-    taskSigma1385->SetnMix(nmix);
 
     if (!taskSigma1385)
         return 0x0;

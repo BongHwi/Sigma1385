@@ -12,7 +12,7 @@
 #endif
 
 void run_KIAF(const char* dataset = "test1.list",
-              const char* option = "AOD_Dev_Mix") {
+              const char* option = "AOD_Mix_Dev_Nano") {
   gSystem->Load("libTree.so");
   gSystem->Load("libGeom.so");
   gSystem->Load("libVMC.so");
@@ -91,7 +91,8 @@ void run_KIAF(const char* dataset = "test1.list",
         reinterpret_cast<AliAnalysisTask*>(gInterpreter->ExecuteMacro(
             Form("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C(%d)", ismc)));
   }
-  
+  if(isNano)
+    gInterpreter->ExecuteMacro("$ALICE_PHYSICS/PWG/DevNanoAOD/macros/AddTaskNanoAODnormalisation.C");
   if (isDev) {
     gInterpreter->LoadMacro("AliAnalysisTaskTrackMixertemp.cxx+g");
     gInterpreter->LoadMacro("AliAnalysisTaskSigma1385temp.cxx+g");
@@ -109,6 +110,10 @@ void run_KIAF(const char* dataset = "test1.list",
 
     
   } else {
+      AliAnalysisTaskTrackMixer* myTaskMixer =
+          reinterpret_cast<AliAnalysisTaskTrackMixer*>(gInterpreter->ExecuteMacro(
+              Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
+                  nmix, suffix)));
       AliAnalysisTaskSigma1385PM* myTask =
         reinterpret_cast<AliAnalysisTaskSigma1385PM*>(
             gInterpreter->ExecuteMacro(

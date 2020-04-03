@@ -43,9 +43,9 @@ void run_KIAF(const char* dataset = "test1.list",
   int nmix = 10;
   bool highmult = kFALSE;
   TString foption = option;
-  const char* taskname = "Sigma1385";
+  const char* taskname = "Sigma1385MB";
   const char* tasknameMixer = "TrackMixer";
-  const char* suffix = "MB_";
+  const char* suffix = "_";
   if (foption.Contains("MC"))
     ismc = kTRUE;
   if (foption.Contains("Dev"))
@@ -96,19 +96,53 @@ void run_KIAF(const char* dataset = "test1.list",
   if (isDev) {
     gInterpreter->LoadMacro("AliAnalysisTaskTrackMixertemp.cxx+g");
     gInterpreter->LoadMacro("AliAnalysisTaskSigma1385temp.cxx+g");
-    // AliAnalysisTaskXi1530temp *myTask =
-    // reinterpret_cast<AliAnalysisTaskXi1530temp*>(gInterpreter->ExecuteMacro(Form("AddTaskXi1530.c(\"%s\",\"%s\",%i,%d,%d,%d,%d)",taskname,option,nmix,highmult,isaa,ismc,setmixing)));
     AliAnalysisTaskTrackMixertemp* myTaskMixer =
         reinterpret_cast<AliAnalysisTaskTrackMixertemp*>(gInterpreter->ExecuteMacro(
             Form("AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
                  nmix, suffix)));
-    AliAnalysisTaskSigma1385temp* myTask =
+    std::vector<TString> options = {"_","_cpv1","_cpv2","_DCAd1","_DCAd2",
+                                    "_DCApvlambda1","_DCApvlambda2", "_lifetime1",
+                                    "_lifetime2","_masscut1","_masscut2","_pid1",
+                                    "_pid2","_pid3","_pid4","_pionr1","_pionr2","_pionz1",
+                                    "_pionz2"};
+    std::vector<AliAnalysisTaskSigma1385temp*> myTasks;
+    for(auto val: options){
+      myTasks.push_back(
         reinterpret_cast<AliAnalysisTaskSigma1385temp*>(
             gInterpreter->ExecuteMacro(
                 Form("AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname,
-                     option, nmix, suffix)));
+                     option, nmix, val.Data()))));
+    }
+    for(auto Checktask: myTasks){
+      Checktask->fEventCuts.SetManualMode();
+      Checktask->fEventCuts.SetupRun2pp();
+      Checktask->fEventCuts.OverrideAutomaticTriggerSelection(AliVEvent::kINT7);
+      Checktask->fEventCuts.SelectOnlyInelGt0(kFALSE);
+      Checktask->SetFillQAPlot(kFALSE);
+      Checktask->SetMixing(kTRUE);
+    }
+    myTasks[0]->SetFillQAPlot(kTRUE);
+    myTasks[1]->SetMinCPAV0(0.99);
+    myTasks[2]->SetMinCPAV0(0.97);
+    myTasks[3]->SetMaxDCAV0daughters(0.35);
+    myTasks[4]->SetMaxDCAV0daughters(0.67);
+    myTasks[5]->SetMaxDCAPVV0(0.22);
+    myTasks[6]->SetMaxDCAPVV0(0.4);
+    myTasks[7]->SetLifetimeV0(28);
+    myTasks[8]->SetLifetimeV0(32);
+    myTasks[9]->SetMaxMassWindowV0(0.013);
+    myTasks[10]->SetMaxMassWindowV0(0.0076);
+    myTasks[11]->SetMaxNsigSigmaStarPion(2.5);
+    myTasks[12]->SetMaxNsigSigmaStarPion(3.5);
+    myTasks[13]->SetMaxNsigV0Proton(2.5);
+    myTasks[13]->SetMaxNsigV0Pion(2.5);
+    myTasks[14]->SetMaxNsigV0Proton(3.5);
+    myTasks[14]->SetMaxNsigV0Pion(3.5);
+    myTasks[15]->SetMaxVertexXYsigSigmaStarPion(6.0);
+    myTasks[16]->SetMaxVertexXYsigSigmaStarPion(8.0);
+    myTasks[17]->SetMaxVertexZSigmaStarPion(1.8);
+    myTasks[18]->SetMaxVertexZSigmaStarPion(2.2);
 
-    
   } else {
       // AliAnalysisTaskTrackMixer* myTaskMixer =
       //     reinterpret_cast<AliAnalysisTaskTrackMixer*>(gInterpreter->ExecuteMacro(

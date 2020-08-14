@@ -120,6 +120,9 @@ void run_KIAF(const char* dataset = "test1.list",
       Checktask->fEventCuts.SelectOnlyInelGt0(kFALSE);
       Checktask->SetFillQAPlot(kFALSE);
       Checktask->SetMixing(kTRUE);
+	  Checktask->SetMinCPAV0(0.98);
+	  Checktask->SetLowRadiusV0(0.2);
+	  Checktask->SetHighRadiusV0(200);
     }
     myTasks[0]->SetFillQAPlot(kTRUE);
     myTasks[1]->SetMinCPAV0(0.99);

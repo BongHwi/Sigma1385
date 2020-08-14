@@ -151,11 +151,51 @@ void run_KIAF(const char* dataset = "test1.list",
       //     reinterpret_cast<AliAnalysisTaskTrackMixer*>(gInterpreter->ExecuteMacro(
       //         Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskTrackMixer.C(\"%s\",\"%s\",%i,\"%s\")", tasknameMixer, option,
       //             nmix, suffix)));
-      AliAnalysisTaskSigma1385PM* myTask =
-        reinterpret_cast<AliAnalysisTaskSigma1385PM*>(
-            gInterpreter->ExecuteMacro(
-                Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname,
-                     option, nmix, suffix)));
+      // AliAnalysisTaskSigma1385PM* myTask =
+      //   reinterpret_cast<AliAnalysisTaskSigma1385PM*>(
+      //       gInterpreter->ExecuteMacro(
+      //           Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname,
+      //                option, nmix, suffix)));
+      std::vector<AliAnalysisTaskSigma1385PM*> myTasks;
+      for(auto val: options){
+        myTasks.push_back(
+          reinterpret_cast<AliAnalysisTaskSigma1385PM*>(
+              gInterpreter->ExecuteMacro(
+                  Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname,
+                      option, nmix, val.Data()))));
+      }
+      for(auto Checktask: myTasks){
+        Checktask->fEventCuts.SetManualMode();
+        Checktask->fEventCuts.SetupRun2pp();
+        Checktask->fEventCuts.OverrideAutomaticTriggerSelection(AliVEvent::kINT7);
+        Checktask->fEventCuts.SelectOnlyInelGt0(kFALSE);
+        Checktask->SetFillQAPlot(kFALSE);
+        Checktask->SetMixing(kTRUE);
+        Checktask->SetMinCPAV0(0.98);
+        Checktask->SetLowRadiusV0(0.2);
+        Checktask->SetHighRadiusV0(200);
+      }
+      myTasks[0]->SetFillQAPlot(kTRUE);
+      myTasks[1]->SetMinCPAV0(0.99);
+      myTasks[2]->SetMinCPAV0(0.97);
+      myTasks[3]->SetMaxDCAV0daughters(0.35);
+      myTasks[4]->SetMaxDCAV0daughters(0.67);
+      myTasks[5]->SetMaxDCAPVV0(0.22);
+      myTasks[6]->SetMaxDCAPVV0(0.4);
+      myTasks[7]->SetLifetimeV0(28);
+      myTasks[8]->SetLifetimeV0(32);
+      myTasks[9]->SetMaxMassWindowV0(0.013);
+      myTasks[10]->SetMaxMassWindowV0(0.0076);
+      myTasks[11]->SetMaxNsigSigmaStarPion(2.5);
+      myTasks[12]->SetMaxNsigSigmaStarPion(3.5);
+      myTasks[13]->SetMaxNsigV0Proton(2.5);
+      myTasks[13]->SetMaxNsigV0Pion(2.5);
+      myTasks[14]->SetMaxNsigV0Proton(3.5);
+      myTasks[14]->SetMaxNsigV0Pion(3.5);
+      myTasks[15]->SetMaxVertexXYsigSigmaStarPion(6.0);
+      myTasks[16]->SetMaxVertexXYsigSigmaStarPion(8.0);
+      myTasks[17]->SetMaxVertexZSigmaStarPion(1.8);
+      myTasks[18]->SetMaxVertexZSigmaStarPion(2.2);
   }
   if (!mgr->InitAnalysis())
     return;

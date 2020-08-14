@@ -12,7 +12,7 @@
 #endif
 
 void run_KIAF(const char* dataset = "test1.list",
-              const char* option = "AOD_Mix_Dev_Nano") {
+              const char* option = "AOD_Mix_Nano") {
   gSystem->Load("libTree.so");
   gSystem->Load("libGeom.so");
   gSystem->Load("libVMC.so");
@@ -156,6 +156,11 @@ void run_KIAF(const char* dataset = "test1.list",
       //       gInterpreter->ExecuteMacro(
       //           Form("$ALICE_PHYSICS/PWGLF/RESONANCES/PostProcessing/Sigma1385/AddTaskSigma1385.C(\"%s\",\"%s\",%i,\"%s\")", taskname,
       //                option, nmix, suffix)));
+      std::vector<TString> options = {"_","_cpv1","_cpv2","_DCAd1","_DCAd2",
+                                    "_DCApvlambda1","_DCApvlambda2", "_lifetime1",
+                                    "_lifetime2","_masscut1","_masscut2","_pid1",
+                                    "_pid2","_pid3","_pid4","_pionr1","_pionr2","_pionz1",
+                                    "_pionz2"};
       std::vector<AliAnalysisTaskSigma1385PM*> myTasks;
       for(auto val: options){
         myTasks.push_back(
